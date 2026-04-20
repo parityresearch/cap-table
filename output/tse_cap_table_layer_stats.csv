@@ -1,0 +1,4 @@
+layer,current_claim_m,expected_claim_at_exit_m,expected_recovered_m,expected_recovery_pct,money_good_probability,p10_recovery_pct,p50_recovery_pct,p90_recovery_pct
+Super,193.0000,192.3076,192.3076,1.000000,1.000000,1.000000,1.000000,1.000000
+1L,1953.0000,1945.9937,744.0775,0.383143,0.000000,0.247001,0.382381,0.498902
+2L,442.0000,440.4144,0.0000,0.000000,0.000000,0.000000,0.000000,0.000000

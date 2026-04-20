@@ -1,0 +1,6 @@
+layer,instrument,principal_m,maturity,interest_type,is_pik,pik_rate_pct,expected_claim_at_exit_m,expected_recovered_m,expected_recovery_pct,money_good_probability
+Super,A/R Facility,118.0000,n/a,n/a,False,0.0000,117.5767,117.5767,1.000000,1.000000
+Super,Super-Priority Revolver (RCF),75.0000,2028,Cash,False,0.0000,74.7309,74.7309,1.000000,1.000000
+1L,Refi Term Loans,1238.0000,n/a,n/a,False,0.0000,1233.5587,471.6682,0.383143,0.000000
+1L,Term Loan B,715.0000,2028,SOFR + 8.5% (PIK Option),True,13.8000,712.4350,272.4093,0.383143,0.000000
+2L,Senior Secured Notes (2029),442.0000,2029,7.625% Cash,False,0.0000,440.4144,0.0000,0.000000,0.000000

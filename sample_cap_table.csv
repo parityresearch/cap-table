@@ -1,0 +1,12 @@
+Layer,Instrument,Principal,Maturity,Interest Type
+Super,Senior Secured Notes,50.0,2027,Fixed 5.0%
+1L,Term Loan B,300.0,2027,PIK SOFR+8.5%
+2L,Second Lien Notes,150.0,2028,12.5% Cash
+Junior,Mezzanine Loan,75.0,2028,15.0% PIK
+Equity,Equity Rollover,25.0,N/A,Equity
+Adjusted EBITDA,72.5
+Valuation Multiple Low,4.0
+Valuation Multiple Mid,6.0
+Valuation Multiple High,8.0
+Other Claims,0.0
+Total Debt to Clear,575.0

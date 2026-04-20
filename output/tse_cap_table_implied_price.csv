@@ -1,0 +1,4 @@
+scenario,ebitda_m,ev_net_m,recovery_pct,recovery_cents,implied_fair_value_cents,market_price_cents,gap_cents,implied_gross_return_pct
+Distressed,72.5000,360.0000,0.085509,8.5509,7.1258,11.0000,-3.8742,-22.2641
+Clean run-rate,135.5000,738.0000,0.279058,27.9058,23.2548,11.0000,12.2548,153.6890
+Recovery,225.0000,1275.0000,0.554019,55.4019,46.1683,11.0000,35.1683,403.6541

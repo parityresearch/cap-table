@@ -1,0 +1,977 @@
+{
+  "generated_at": "2026-04-16T19:31:45-07:00",
+  "workbook": {
+    "name": "TSE Cap Table .xlsx",
+    "base_ebitda": 162.5,
+    "multiple_low": 5.0,
+    "multiple_mid": 6.0,
+    "multiple_high": 7.0,
+    "listed_debt": 2588.0,
+    "other_claims": 3.9,
+    "total_debt_to_clear": 2591.9,
+    "instruments": [
+      {
+        "layer": "Super",
+        "rank": 1,
+        "priority_label": "1. Super",
+        "name": "A/R Facility",
+        "principal": 118.0,
+        "maturity": "n/a",
+        "interest_type": "n/a",
+        "is_pik": false,
+        "pik_rate": 0.0
+      },
+      {
+        "layer": "Super",
+        "rank": 1,
+        "priority_label": "1. Super",
+        "name": "Super-Priority Revolver (RCF)",
+        "principal": 75.0,
+        "maturity": "2028",
+        "interest_type": "Cash",
+        "is_pik": false,
+        "pik_rate": 0.0
+      },
+      {
+        "layer": "1L",
+        "rank": 2,
+        "priority_label": "2. 1st Senior Secured",
+        "name": "Refi Term Loans",
+        "principal": 1238.0,
+        "maturity": "n/a",
+        "interest_type": "n/a",
+        "is_pik": false,
+        "pik_rate": 0.0
+      },
+      {
+        "layer": "1L",
+        "rank": 2,
+        "priority_label": "2. 1st Senior Secured",
+        "name": "Term Loan B",
+        "principal": 715.0,
+        "maturity": "2028",
+        "interest_type": "SOFR + 8.5% (PIK Option)",
+        "is_pik": true,
+        "pik_rate": 0.138
+      },
+      {
+        "layer": "2L",
+        "rank": 3,
+        "priority_label": "3. 2nd Lien",
+        "name": "Senior Secured Notes (2029)",
+        "principal": 442.0,
+        "maturity": "2029",
+        "interest_type": "7.625% Cash",
+        "is_pik": false,
+        "pik_rate": 0.0
+      },
+      {
+        "layer": "Junior",
+        "rank": 4,
+        "priority_label": "4. Junior",
+        "name": "Unsecured Notes / Trade Claims",
+        "principal": 0.0,
+        "maturity": "2025/29",
+        "interest_type": "Various",
+        "is_pik": false,
+        "pik_rate": 0.0
+      }
+    ]
+  },
+  "assumptions": {
+    "runs": 100,
+    "seed": 7,
+    "ebitda_cv": 0.22,
+    "debt_volatility": 0.03,
+    "ebitda_distressed": 72.5,
+    "ebitda_clean": 135.5,
+    "ebitda_recovery": 225.0,
+    "market_price_1l": 11.0,
+    "discount_rate": 20.0,
+    "resolution_months": 12,
+    "ch11_costs": 75.0
+  },
+  "summary": {
+    "insolvency_probability": 1.0,
+    "positive_equity_probability": 0.0,
+    "expected_equity_value": 0.0,
+    "equity_distribution": {
+      "mean": 0.0,
+      "p10": 0.0,
+      "p25": 0.0,
+      "p50": 0.0,
+      "p75": 0.0,
+      "p90": 0.0
+    },
+    "enterprise_value_distribution": {
+      "mean": 936.3851559175171,
+      "p10": 670.3061248534424,
+      "p25": 818.9363647100092,
+      "p50": 929.5765941680276,
+      "p75": 1039.1569913587473,
+      "p90": 1167.7494086233298
+    },
+    "ebitda_distribution": {
+      "mean": 155.61358575904387,
+      "p10": 119.78407654699691,
+      "p25": 137.79029830149923,
+      "p50": 154.7445188943977,
+      "p75": 171.38867359041132,
+      "p90": 193.60623078122802
+    },
+    "exit_multiple_distribution": {
+      "mean": 6.022782057683004,
+      "p10": 5.463800251122668,
+      "p25": 5.730441935705656,
+      "p50": 6.023805506441188,
+      "p75": 6.325248723475321,
+      "p90": 6.588858926196179
+    }
+  },
+  "charts": {
+    "enterprise_value_histogram": [
+      {
+        "start": 537.3804582685624,
+        "end": 588.368031956317,
+        "count": 1
+      },
+      {
+        "start": 588.368031956317,
+        "end": 639.3556056440718,
+        "count": 3
+      },
+      {
+        "start": 639.3556056440718,
+        "end": 690.3431793318265,
+        "count": 7
+      },
+      {
+        "start": 690.3431793318265,
+        "end": 741.3307530195812,
+        "count": 4
+      },
+      {
+        "start": 741.3307530195812,
+        "end": 792.3183267073358,
+        "count": 6
+      },
+      {
+        "start": 792.3183267073358,
+        "end": 843.3059003950905,
+        "count": 11
+      },
+      {
+        "start": 843.3059003950905,
+        "end": 894.2934740828453,
+        "count": 7
+      },
+      {
+        "start": 894.2934740828453,
+        "end": 945.2810477705999,
+        "count": 14
+      },
+      {
+        "start": 945.2810477705999,
+        "end": 996.2686214583546,
+        "count": 14
+      },
+      {
+        "start": 996.2686214583546,
+        "end": 1047.2561951461093,
+        "count": 8
+      },
+      {
+        "start": 1047.2561951461093,
+        "end": 1098.2437688338641,
+        "count": 5
+      },
+      {
+        "start": 1098.2437688338641,
+        "end": 1149.2313425216187,
+        "count": 5
+      },
+      {
+        "start": 1149.2313425216187,
+        "end": 1200.2189162093732,
+        "count": 10
+      },
+      {
+        "start": 1200.2189162093732,
+        "end": 1251.206489897128,
+        "count": 2
+      },
+      {
+        "start": 1251.206489897128,
+        "end": 1302.1940635848828,
+        "count": 0
+      },
+      {
+        "start": 1302.1940635848828,
+        "end": 1353.1816372726375,
+        "count": 0
+      },
+      {
+        "start": 1353.1816372726375,
+        "end": 1404.169210960392,
+        "count": 1
+      },
+      {
+        "start": 1404.169210960392,
+        "end": 1455.1567846481469,
+        "count": 2
+      }
+    ],
+    "equity_histogram": [
+      {
+        "start": -0.5,
+        "end": -0.4285714285714286,
+        "count": 0
+      },
+      {
+        "start": -0.4285714285714286,
+        "end": -0.35714285714285715,
+        "count": 0
+      },
+      {
+        "start": -0.35714285714285715,
+        "end": -0.2857142857142857,
+        "count": 0
+      },
+      {
+        "start": -0.2857142857142857,
+        "end": -0.2142857142857143,
+        "count": 0
+      },
+      {
+        "start": -0.2142857142857143,
+        "end": -0.1428571428571429,
+        "count": 0
+      },
+      {
+        "start": -0.1428571428571429,
+        "end": -0.07142857142857145,
+        "count": 0
+      },
+      {
+        "start": -0.07142857142857145,
+        "end": 0.0,
+        "count": 0
+      },
+      {
+        "start": 0.0,
+        "end": 0.0714285714285714,
+        "count": 100
+      },
+      {
+        "start": 0.0714285714285714,
+        "end": 0.1428571428571428,
+        "count": 0
+      },
+      {
+        "start": 0.1428571428571428,
+        "end": 0.2142857142857142,
+        "count": 0
+      },
+      {
+        "start": 0.2142857142857142,
+        "end": 0.2857142857142857,
+        "count": 0
+      },
+      {
+        "start": 0.2857142857142857,
+        "end": 0.3571428571428571,
+        "count": 0
+      },
+      {
+        "start": 0.3571428571428571,
+        "end": 0.4285714285714285,
+        "count": 0
+      },
+      {
+        "start": 0.4285714285714285,
+        "end": 0.5,
+        "count": 0
+      }
+    ]
+  },
+  "layer_stats": [
+    {
+      "layer": "Super",
+      "current_claim": 193.0,
+      "expected_claim_at_exit": 192.30762374598712,
+      "expected_recovered": 192.30762374598712,
+      "expected_recovery_pct": 1.0,
+      "money_good_probability": 1.0,
+      "recovery_distribution": {
+        "mean": 1.0,
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 1.0,
+        "p75": 1.0,
+        "p90": 1.0
+      }
+    },
+    {
+      "layer": "1L",
+      "current_claim": 1953.0,
+      "expected_claim_at_exit": 1945.993726300066,
+      "expected_recovered": 744.0775321715299,
+      "expected_recovery_pct": 0.38314347156128725,
+      "money_good_probability": 0.0,
+      "recovery_distribution": {
+        "mean": 0.38314347156128725,
+        "p10": 0.24700112681126446,
+        "p25": 0.31779084561577847,
+        "p50": 0.3823814923247547,
+        "p75": 0.446770112055459,
+        "p90": 0.49890227997313663
+      }
+    },
+    {
+      "layer": "2L",
+      "current_claim": 442.0,
+      "expected_claim_at_exit": 440.41435075505854,
+      "expected_recovered": 0.0,
+      "expected_recovery_pct": 0.0,
+      "money_good_probability": 0.0,
+      "recovery_distribution": {
+        "mean": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0
+      }
+    }
+  ],
+  "instrument_stats": [
+    {
+      "layer": "Super",
+      "instrument": "A/R Facility",
+      "principal": 118.0,
+      "maturity": "n/a",
+      "interest_type": "n/a",
+      "is_pik": false,
+      "pik_rate_pct": 0.0,
+      "expected_claim_at_exit": 117.57668187578483,
+      "expected_recovered": 117.57668187578483,
+      "expected_recovery_pct": 1.0,
+      "money_good_probability": 1.0,
+      "recovery_distribution": {
+        "mean": 1.0,
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 1.0,
+        "p75": 1.0,
+        "p90": 1.0
+      }
+    },
+    {
+      "layer": "Super",
+      "instrument": "Super-Priority Revolver (RCF)",
+      "principal": 75.0,
+      "maturity": "2028",
+      "interest_type": "Cash",
+      "is_pik": false,
+      "pik_rate_pct": 0.0,
+      "expected_claim_at_exit": 74.73094187020224,
+      "expected_recovered": 74.73094187020224,
+      "expected_recovery_pct": 1.0,
+      "money_good_probability": 1.0,
+      "recovery_distribution": {
+        "mean": 1.0,
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 1.0,
+        "p75": 1.0,
+        "p90": 1.0
+      }
+    },
+    {
+      "layer": "1L",
+      "instrument": "Refi Term Loans",
+      "principal": 1238.0,
+      "maturity": "n/a",
+      "interest_type": "n/a",
+      "is_pik": false,
+      "pik_rate_pct": 0.0,
+      "expected_claim_at_exit": 1233.5587471374713,
+      "expected_recovered": 471.6681949965969,
+      "expected_recovery_pct": 0.38314347156128725,
+      "money_good_probability": 0.0,
+      "recovery_distribution": {
+        "mean": 0.38314347156128725,
+        "p10": 0.24700112681126446,
+        "p25": 0.31779084561577847,
+        "p50": 0.3823814923247547,
+        "p75": 0.446770112055459,
+        "p90": 0.49890227997313663
+      }
+    },
+    {
+      "layer": "1L",
+      "instrument": "Term Loan B",
+      "principal": 715.0,
+      "maturity": "2028",
+      "interest_type": "SOFR + 8.5% (PIK Option)",
+      "is_pik": true,
+      "pik_rate_pct": 13.8,
+      "expected_claim_at_exit": 712.4349791625947,
+      "expected_recovered": 272.40933717493283,
+      "expected_recovery_pct": 0.38314347156128725,
+      "money_good_probability": 0.0,
+      "recovery_distribution": {
+        "mean": 0.38314347156128725,
+        "p10": 0.24700112681126446,
+        "p25": 0.31779084561577847,
+        "p50": 0.3823814923247547,
+        "p75": 0.446770112055459,
+        "p90": 0.49890227997313663
+      }
+    },
+    {
+      "layer": "2L",
+      "instrument": "Senior Secured Notes (2029)",
+      "principal": 442.0,
+      "maturity": "2029",
+      "interest_type": "7.625% Cash",
+      "is_pik": false,
+      "pik_rate_pct": 0.0,
+      "expected_claim_at_exit": 440.41435075505854,
+      "expected_recovered": 0.0,
+      "expected_recovery_pct": 0.0,
+      "money_good_probability": 0.0,
+      "recovery_distribution": {
+        "mean": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "label": "Distressed",
+      "enterprise_value": 812.5,
+      "waterfall": [
+        {
+          "layer": "Super",
+          "claim": 193.0,
+          "recovered": 193.0,
+          "recovery_pct": 1.0
+        },
+        {
+          "layer": "1L",
+          "claim": 1953.0,
+          "recovered": 619.5,
+          "recovery_pct": 0.3172043010752688
+        },
+        {
+          "layer": "2L",
+          "claim": 442.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Other claims reserve",
+          "claim": 3.9,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Equity residual",
+          "claim": 0.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        }
+      ]
+    },
+    {
+      "label": "Base",
+      "enterprise_value": 975.0,
+      "waterfall": [
+        {
+          "layer": "Super",
+          "claim": 193.0,
+          "recovered": 193.0,
+          "recovery_pct": 1.0
+        },
+        {
+          "layer": "1L",
+          "claim": 1953.0,
+          "recovered": 782.0,
+          "recovery_pct": 0.40040962621607784
+        },
+        {
+          "layer": "2L",
+          "claim": 442.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Other claims reserve",
+          "claim": 3.9,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Equity residual",
+          "claim": 0.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        }
+      ]
+    },
+    {
+      "label": "Healthy",
+      "enterprise_value": 1137.5,
+      "waterfall": [
+        {
+          "layer": "Super",
+          "claim": 193.0,
+          "recovered": 193.0,
+          "recovery_pct": 1.0
+        },
+        {
+          "layer": "1L",
+          "claim": 1953.0,
+          "recovered": 944.5,
+          "recovery_pct": 0.4836149513568868
+        },
+        {
+          "layer": "2L",
+          "claim": 442.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Other claims reserve",
+          "claim": 3.9,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Equity residual",
+          "claim": 0.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        }
+      ]
+    }
+  ],
+  "sensitivity": {
+    "ebitda_values": [
+      121.875,
+      146.25,
+      162.5,
+      178.75000000000003,
+      203.125
+    ],
+    "multiple_values": [
+      5.0,
+      5.5,
+      6.0,
+      6.5,
+      7.0
+    ],
+    "cells": [
+      [
+        {
+          "enterprise_value": 609.375,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 670.3125,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 731.25,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 792.1875,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 853.125,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        }
+      ],
+      [
+        {
+          "enterprise_value": 731.25,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 804.375,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 877.5,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 950.625,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 1023.75,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        }
+      ],
+      [
+        {
+          "enterprise_value": 812.5,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 893.75,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 975.0,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 1056.25,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 1137.5,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        }
+      ],
+      [
+        {
+          "enterprise_value": 893.7500000000001,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 983.1250000000001,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 1072.5000000000002,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 1161.8750000000002,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 1251.2500000000002,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        }
+      ],
+      [
+        {
+          "enterprise_value": 1015.625,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 1117.1875,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 1218.75,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 1320.3125,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        },
+        {
+          "enterprise_value": 1421.875,
+          "equity_value": 0.0,
+          "second_lien_recovery": 0.0
+        }
+      ]
+    ],
+    "max_equity": 0.0
+  },
+  "pik_accretion": [
+    {
+      "instrument": "Term Loan B",
+      "layer": "1L",
+      "original_balance": 715.0,
+      "accreted_balance": 820.1564167503245,
+      "additional_debt": 105.15641675032452,
+      "pik_rate_pct": 13.8,
+      "months": 12
+    }
+  ],
+  "ebitda_scenarios": [
+    {
+      "label": "Distressed",
+      "ebitda": 72.5,
+      "rationale": "Annualised Q3/Q4 exit run-rate (~$30M/qtr). Market-implied at 11c. Structural demand weakness, tariff headwinds, Asian import pressure.",
+      "color": "bad",
+      "multiple": 6.0,
+      "ev_gross": 435.0,
+      "ch11_costs": 75.0,
+      "ev_net": 360.0,
+      "waterfall": [
+        {
+          "layer": "Super",
+          "claim": 193.0,
+          "recovered": 193.0,
+          "recovery_pct": 1.0
+        },
+        {
+          "layer": "1L",
+          "claim": 1953.0,
+          "recovered": 167.0,
+          "recovery_pct": 0.0855094726062468
+        },
+        {
+          "layer": "2L",
+          "claim": 442.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Other claims reserve",
+          "claim": 3.9,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Equity residual",
+          "claim": 0.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        }
+      ],
+      "fulcrum_layer": "1L"
+    },
+    {
+      "label": "Clean run-rate",
+      "ebitda": 135.5,
+      "rationale": "Reported $162.5M adj. EBITDA minus $27M one-time PC licensing income. Best estimate of recurring earning power at current volume levels.",
+      "color": "warn",
+      "multiple": 6.0,
+      "ev_gross": 813.0,
+      "ch11_costs": 75.0,
+      "ev_net": 738.0,
+      "waterfall": [
+        {
+          "layer": "Super",
+          "claim": 193.0,
+          "recovered": 193.0,
+          "recovery_pct": 1.0
+        },
+        {
+          "layer": "1L",
+          "claim": 1953.0,
+          "recovered": 545.0,
+          "recovery_pct": 0.279057859703021
+        },
+        {
+          "layer": "2L",
+          "claim": 442.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Other claims reserve",
+          "claim": 3.9,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Equity residual",
+          "claim": 0.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        }
+      ],
+      "fulcrum_layer": "1L"
+    },
+    {
+      "label": "Recovery",
+      "ebitda": 225.0,
+      "rationale": "Normalised demand (+10% volume = ~$100M EBITDA per mgmt). Trade certainty, rate cuts, European reshoring. This is what reorganised equity holders are betting on.",
+      "color": "good",
+      "multiple": 6.0,
+      "ev_gross": 1350.0,
+      "ch11_costs": 75.0,
+      "ev_net": 1275.0,
+      "waterfall": [
+        {
+          "layer": "Super",
+          "claim": 193.0,
+          "recovered": 193.0,
+          "recovery_pct": 1.0
+        },
+        {
+          "layer": "1L",
+          "claim": 1953.0,
+          "recovered": 1082.0,
+          "recovery_pct": 0.5540194572452637
+        },
+        {
+          "layer": "2L",
+          "claim": 442.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Other claims reserve",
+          "claim": 3.9,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        },
+        {
+          "layer": "Equity residual",
+          "claim": 0.0,
+          "recovered": 0.0,
+          "recovery_pct": 0.0
+        }
+      ],
+      "fulcrum_layer": "1L"
+    }
+  ],
+  "implied_price": {
+    "scenarios": [
+      {
+        "scenario": "Distressed",
+        "ebitda": 72.5,
+        "ev_net": 360.0,
+        "recovery_pct": 0.0855094726062468,
+        "recovery_cents": 8.55094726062468,
+        "implied_fair_value": 7.1257893838539,
+        "market_price": 11.0,
+        "gap_cents": -3.8742106161461,
+        "implied_gross_return_pct": -22.264115812502904,
+        "discount_rate": 20.0,
+        "resolution_months": 12
+      },
+      {
+        "scenario": "Clean run-rate",
+        "ebitda": 135.5,
+        "ev_net": 738.0,
+        "recovery_pct": 0.279057859703021,
+        "recovery_cents": 27.905785970302098,
+        "implied_fair_value": 23.254821641918415,
+        "market_price": 11.0,
+        "gap_cents": 12.254821641918415,
+        "implied_gross_return_pct": 153.68896336638272,
+        "discount_rate": 20.0,
+        "resolution_months": 12
+      },
+      {
+        "scenario": "Recovery",
+        "ebitda": 225.0,
+        "ev_net": 1275.0,
+        "recovery_pct": 0.5540194572452637,
+        "recovery_cents": 55.40194572452637,
+        "implied_fair_value": 46.16828810377198,
+        "market_price": 11.0,
+        "gap_cents": 35.16828810377198,
+        "implied_gross_return_pct": 403.6540520411489,
+        "discount_rate": 20.0,
+        "resolution_months": 12
+      }
+    ],
+    "market_price": 11.0,
+    "discount_rate": 20.0,
+    "resolution_months": 12,
+    "discount_factor": 0.8333333333333334,
+    "market_implied_ev": 407.83000000000004,
+    "market_implied_ebitda": 67.97166666666668,
+    "market_implied_multiple": 6.0
+  },
+  "ch11_leakage": [
+    {
+      "scenario": "Distressed",
+      "ev_gross": 435.0,
+      "ch11_costs": 75.0,
+      "ev_net": 360.0,
+      "l1_recovery_without_costs": 0.12391193036354327,
+      "l1_recovery_with_costs": 0.0855094726062468,
+      "recovery_drag_pp": 0.03840245775729646
+    },
+    {
+      "scenario": "Clean run-rate",
+      "ev_gross": 813.0,
+      "ch11_costs": 75.0,
+      "ev_net": 738.0,
+      "l1_recovery_without_costs": 0.31746031746031744,
+      "l1_recovery_with_costs": 0.279057859703021,
+      "recovery_drag_pp": 0.03840245775729645
+    },
+    {
+      "scenario": "Recovery",
+      "ev_gross": 1350.0,
+      "ch11_costs": 75.0,
+      "ev_net": 1275.0,
+      "l1_recovery_without_costs": 0.5924219150025601,
+      "l1_recovery_with_costs": 0.5540194572452637,
+      "recovery_drag_pp": 0.03840245775729645
+    }
+  ],
+  "fulcrum_base": {
+    "waterfall": [
+      {
+        "layer": "Super",
+        "claim": 193.0,
+        "recovered": 193.0,
+        "recovery_pct": 1.0,
+        "is_fulcrum": false,
+        "status": "Money-good"
+      },
+      {
+        "layer": "1L",
+        "claim": 1953.0,
+        "recovered": 707.0,
+        "recovery_pct": 0.36200716845878134,
+        "is_fulcrum": true,
+        "status": "FULCRUM \u2014 partial recovery, becomes new equity"
+      },
+      {
+        "layer": "2L",
+        "claim": 442.0,
+        "recovered": 0.0,
+        "recovery_pct": 0.0,
+        "is_fulcrum": false,
+        "status": "Wiped out"
+      },
+      {
+        "layer": "Equity",
+        "claim": 0.0,
+        "recovered": 0.0,
+        "recovery_pct": 0.0,
+        "is_fulcrum": false,
+        "status": "Wiped out"
+      }
+    ],
+    "fulcrum_layer": "1L",
+    "ev_used": 900.0
+  }
+}

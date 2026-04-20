@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TSE Cap Table Recovery Engine</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8f9fa;
+      color: #1a1a1a;
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Navigation */
+    .navbar {
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #1a1a1a;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 12px;
+      color: #666;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #1a1a1a;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 60px 24px;
+    }
+
+    .hero-content {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .hero-title {
+      font-size: 13px;
+      color: #666;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .hero-heading {
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -0.8px;
+      margin-bottom: 16px;
+      max-width: 900px;
+      line-height: 1.1;
+    }
+
+    .hero-subheading {
+      font-size: 15px;
+      color: #666;
+      line-height: 1.6;
+      max-width: 600px;
+      margin-bottom: 28px;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .cta-btn {
+      padding: 12px 24px;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .cta-btn:hover {
+      background: #333;
+    }
+
+    .cta-btn-secondary {
+      background: white;
+      color: #1a1a1a;
+      border: 1px solid #d0d0d0;
+    }
+
+    .cta-btn-secondary:hover {
+      background: #f5f5f5;
+    }
+
+    /* Hero Stats */
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+      padding-top: 40px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .stat-card {
+      padding: 24px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      border-left: 3px solid #1a1a1a;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      letter-spacing: 0.3px;
+      font-weight: 600;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+
+    /* Two Column Upload Section */
+    .upload-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 80px;
+    }
+
+    .upload-card {
+      background: white;
+      border: 2px dashed #d0d0d0;
+      border-radius: 4px;
+      padding: 48px 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-card:hover {
+      border-color: #1a1a1a;
+      background: #f8f9fa;
+    }
+
+    .upload-card.dragover {
+      border-color: #0066cc;
+      background: #f0f4ff;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    .upload-card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .upload-card p {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 4px;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .file-name {
+      margin-top: 20px;
+      font-family: "SF Mono", monospace;
+      font-size: 11px;
+      color: #0d7a1a;
+      font-weight: 600;
+    }
+
+    /* Parameters Panel */
+    .params-section h3 {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .params-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+    }
+
+    .param-group {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 20px;
+    }
+
+    .param-group h4 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 16px;
+    }
+
+    .param-field {
+      margin-bottom: 16px;
+    }
+
+    .param-field:last-child {
+      margin-bottom: 0;
+    }
+
+    .param-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1a1a1a;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .param-label small {
+      display: block;
+      font-weight: 400;
+      color: #999;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d0d0d0;
+      border-radius: 3px;
+      font-family: "SF Mono", monospace;
+      font-size: 12px;
+      background: white;
+      color: #1a1a1a;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+    }
+
+    /* CSV Reference Section */
+    .csv-section {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 28px;
+      margin-bottom: 40px;
+    }
+
+    .csv-section h3 {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .csv-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-bottom: 20px;
+    }
+
+    .csv-table th {
+      text-align: left;
+      padding: 10px 0;
+      border-bottom: 1px solid #e0e0e0;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: 0.3px;
+    }
+
+    .csv-table td {
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+      color: #666;
+    }
+
+    .csv-table td code {
+      background: #f8f9fa;
+      padding: 2px 6px;
+      border-radius: 2px;
+      color: #c41e3a;
+      font-family: "SF Mono", monospace;
+      font-size: 11px;
+    }
+
+    .csv-example {
+      font-size: 11px;
+      color: #999;
+      margin-top: 16px;
+      line-height: 1.8;
+    }
+
+    .csv-example code {
+      background: #f8f9fa;
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    /* Action Section */
+    .action-section {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin: 40px 0;
+      padding: 24px;
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+    }
+
+    .btn-generate {
+      padding: 12px 32px;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-generate:hover {
+      background: #333;
+    }
+
+    .btn-generate:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .status-message {
+      font-size: 12px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-message.loading {
+      display: flex;
+      color: #0066cc;
+    }
+
+    .status-message.success {
+      display: flex;
+      color: #0d7a1a;
+    }
+
+    .status-message.error {
+      display: flex;
+      color: #c41e3a;
+    }
+
+    .spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Methodology Section */
+    .methodology {
+      margin-top: 80px;
+      padding-top: 60px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .methodology h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 40px;
+      letter-spacing: -0.5px;
+    }
+
+    .method-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .method-card {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 28px;
+    }
+
+    .method-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .method-card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .method-card p {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    /* Results Section */
+    .results-section {
+      display: none;
+      margin-top: 60px;
+    }
+
+    .results-section.visible {
+      display: block;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .results-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .btn-download {
+      padding: 10px 20px;
+      background: #0d7a1a;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-download:hover {
+      background: #0a5f17;
+    }
+
+    .report-frame {
+      width: 100%;
+      height: 1000px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      background: white;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 60px;
+      padding: 40px 24px;
+      background: #f8f9fa;
+      border-top: 1px solid #e0e0e0;
+      text-align: center;
+      color: #999;
+      font-size: 11px;
+    }
+
+    .footer p {
+      margin: 6px 0;
+      letter-spacing: 0.3px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .upload-section {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .params-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 32px 16px;
+      }
+
+      .hero {
+        padding: 40px 16px;
+      }
+
+      .hero-heading {
+        font-size: 32px;
+      }
+
+      .hero-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .action-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .btn-generate {
+        width: 100%;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .upload-section {
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-content">
+      <div class="logo">TSE Recovery Engine</div>
+      <ul class="nav-links">
+        <li><a href="#methodology">Methodology</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#data">Explore</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-title">DISTRESSED CREDIT ANALYSIS TOOL</div>
+      <h1 class="hero-heading">Cap Table Recovery Engine</h1>
+      <p class="hero-subheading">Upload your debt structure. Run Monte Carlo simulations with PIK accretion, Chapter 11 costs, and fulcrum security analysis. Get immediate insights on recovery scenarios and market-implied valuations.</p>
+      
+      <div class="hero-cta">
+        <button class="cta-btn" onclick="document.getElementById('uploadArea').scrollIntoView({behavior: 'smooth'})">Start Analysis</button>
+        <button class="cta-btn cta-btn-secondary" onclick="document.getElementById('methodology').scrollIntoView({behavior: 'smooth'})">Learn More</button>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-number">50K+</div>
+          <div class="stat-label">Monte Carlo Runs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">PIK</div>
+          <div class="stat-label">Accretion Modeling</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">Real-time</div>
+          <div class="stat-label">Analysis</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">∞</div>
+          <div class="stat-label">Scenarios</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Upload Section -->
+    <div class="upload-section" id="uploadArea">
+      <div class="upload-card" id="uploadBox">
+        <div class="upload-icon">📊</div>
+        <h2>Upload CSV</h2>
+        <p>Drag and drop your cap table here</p>
+        <p style="font-size: 11px; margin-top: 8px;">or click to browse</p>
+        <input type="file" id="fileInput" class="file-input" accept=".csv" />
+        <div class="file-name" id="fileName"></div>
+      </div>
+
+      <div>
+        <div class="csv-section">
+          <h3>CSV Format</h3>
+          <table class="csv-table">
+            <thead>
+              <tr>
+                <th>Layer</th>
+                <th>Instrument</th>
+                <th>Principal</th>
+                <th>Maturity</th>
+                <th>Interest</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Super</code></td>
+                <td>Senior Notes</td>
+                <td>50.0</td>
+                <td>2027</td>
+                <td>Fixed 5%</td>
+              </tr>
+              <tr>
+                <td><code>1L</code></td>
+                <td>Term Loan B</td>
+                <td>300.0</td>
+                <td>2027</td>
+                <td>PIK SOFR+8.5%</td>
+              </tr>
+              <tr>
+                <td><code>2L</code></td>
+                <td>Second Lien</td>
+                <td>150.0</td>
+                <td>2028</td>
+                <td>12.5% Cash</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="csv-example">
+            <strong>Then metadata rows:</strong><br>
+            <code>Adjusted EBITDA,72.5</code><br>
+            <code>Valuation Multiple Mid,6.0</code><br>
+            <code>Other Claims,0.0</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parameters -->
+    <div class="params-section">
+      <h3>Configure Simulation</h3>
+      <div class="params-grid">
+        <!-- Simulation Parameters -->
+        <div class="param-group">
+          <h4>Simulation</h4>
+          <div class="param-field">
+            <label class="param-label">
+              Runs
+              <small>More = higher precision</small>
+            </label>
+            <input type="number" id="runs" value="50000" min="100" step="1000" />
+          </div>
+          <div class="param-field">
+            <label class="param-label">
+              Seed
+              <small>Reproducibility</small>
+            </label>
+            <input type="number" id="seed" value="7" />
+          </div>
+          <div class="param-field">
+            <label class="param-label">
+              EBITDA CV
+              <small>0.22 = 22% volatility</small>
+            </label>
+            <input type="number" id="ebitda_cv" value="0.22" min="0" max="1" step="0.01" />
+          </div>
+        </div>
+
+        <!-- EBITDA Cases -->
+        <div class="param-group">
+          <h4>EBITDA Cases ($M)</h4>
+          <div class="param-field">
+            <label class="param-label">
+              Distressed
+              <small>Q3/Q4 run-rate</small>
+            </label>
+            <input type="number" id="ebitda_distressed" value="72.5" step="0.5" />
+          </div>
+          <div class="param-field">
+            <label class="param-label">
+              Clean
+              <small>Reported adj</small>
+            </label>
+            <input type="number" id="ebitda_clean" value="135.5" step="0.5" />
+          </div>
+          <div class="param-field">
+            <label class="param-label">
+              Recovery
+              <small>Management target</small>
+            </label>
+            <input type="number" id="ebitda_recovery" value="225.0" step="0.5" />
+          </div>
+        </div>
+
+        <!-- Market Parameters -->
+        <div class="param-group">
+          <h4>Market & Bankruptcy</h4>
+          <div class="param-field">
+            <label class="param-label">
+              1L Price (¢)
+              <small>Trading level</small>
+            </label>
+            <input type="number" id="market_price_1l" value="11.0" min="0" max="100" step="0.1" />
+          </div>
+          <div class="param-field">
+            <label class="param-label">
+              Discount Rate (%)
+              <small>Fair value discount</small>
+            </label>
+            <input type="number" id="discount_rate" value="20.0" min="0" max="100" step="1" />
+          </div>
+          <div class="param-field">
+            <label class="param-label">
+              Ch.11 Costs ($M)
+              <small>Professional fees</small>
+            </label>
+            <input type="number" id="ch11_costs" value="75.0" step="0.5" />
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="param-group">
+          <h4>Timeline</h4>
+          <div class="param-field">
+            <label class="param-label">
+              Resolution (months)
+              <small>Exit timeframe</small>
+            </label>
+            <input type="number" id="resolution_months" value="12" min="1" max="36" step="1" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action -->
+    <div class="action-section">
+      <button class="btn-generate" id="generateBtn" disabled>Generate Report</button>
+      <div class="status-message" id="statusMessage"></div>
+    </div>
+
+    <!-- Results -->
+    <section class="results-section" id="resultsSection">
+      <div class="results-header">
+        <h2>Recovery Analysis Report</h2>
+        <button class="btn-download" id="downloadBtn">Download HTML</button>
+      </div>
+      <iframe id="reportFrame" class="report-frame"></iframe>
+    </section>
+
+    <!-- Methodology Section -->
+    <section class="methodology" id="methodology">
+      <h2>How It Works</h2>
+      <div class="method-cards">
+        <div class="method-card">
+          <div class="method-icon">📊</div>
+          <h3>Monte Carlo Engine</h3>
+          <p>50,000+ independent simulations sampling EBITDA paths and exit multiples to generate distribution of recovery outcomes across the capital structure.</p>
+        </div>
+        <div class="method-card">
+          <div class="method-icon">🔄</div>
+          <h3>PIK Accretion</h3>
+          <p>Models payment-in-kind interest accruals on applicable instruments, compounding at specified rates to calculate true principal due at exit.</p>
+        </div>
+        <div class="method-card">
+          <div class="method-icon">⚖️</div>
+          <h3>Ch.11 Costs</h3>
+          <p>Deducts professional fees (legal, accounting, restructuring advisors) from enterprise value before waterfall allocation to creditors and equity.</p>
+        </div>
+        <div class="method-card">
+          <div class="method-icon">🎯</div>
+          <h3>Fulcrum Analysis</h3>
+          <p>Identifies the security most likely to recover 40-80% (the fulcrum) based on simulation results, indicating most risk-reward concentrated tranche.</p>
+        </div>
+        <div class="method-card">
+          <div class="method-icon">💰</div>
+          <h3>Market-Implied EBITDA</h3>
+          <p>Reverse-engineers from trading prices and discount rate to infer what market thinks enterprise value and EBITDA recovery look like.</p>
+        </div>
+        <div class="method-card">
+          <div class="method-icon">📈</div>
+          <h3>Waterfall Allocation</h3>
+          <p>Applies strict intercreditor priority, covenant restrictions, and use-of-proceeds requirements to distribute exit value per actual terms.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>TSE CAP TABLE RECOVERY ENGINE • MONTE CARLO ANALYSIS WITH PIK ACCRETION & CH.11 MODELING</p>
+    <p>Built with NumPy, Flask, and distressed credit expertise • Not investment advice</p>
+  </footer>
+
+  <script>
+    const uploadBox = document.getElementById('uploadBox');
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const generateBtn = document.getElementById('generateBtn');
+    const statusMessage = document.getElementById('statusMessage');
+    const resultsSection = document.getElementById('resultsSection');
+    const reportFrame = document.getElementById('reportFrame');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    let selectedFile = null;
+    let generatedHtml = null;
+
+    // Upload handling
+    uploadBox.addEventListener('click', () => fileInput.click());
+    uploadBox.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadBox.classList.add('dragover');
+    });
+    uploadBox.addEventListener('dragleave', () => {
+      uploadBox.classList.remove('dragover');
+    });
+    uploadBox.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadBox.classList.remove('dragover');
+      if (e.dataTransfer.files.length > 0) {
+        handleFileSelect(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+
+    function handleFileSelect(file) {
+      if (!file.name.endsWith('.csv')) {
+        showStatus('Please select a .csv file', 'error');
+        return;
+      }
+      selectedFile = file;
+      fileName.textContent = `✓ ${file.name}`;
+      generateBtn.disabled = false;
+    }
+
+    generateBtn.addEventListener('click', generateReport);
+
+    async function generateReport() {
+      if (!selectedFile) {
+        showStatus('Please select a file first', 'error');
+        return;
+      }
+
+      generateBtn.disabled = true;
+      showStatus('Running analysis...', 'loading');
+      resultsSection.classList.remove('visible');
+
+      try {
+        const formData = new FormData();
+        formData.append('csv_file', selectedFile);
+        formData.append('runs', document.getElementById('runs').value);
+        formData.append('seed', document.getElementById('seed').value);
+        formData.append('ebitda_cv', document.getElementById('ebitda_cv').value);
+        formData.append('debt_volatility', '0.03');
+        formData.append('ebitda_distressed', document.getElementById('ebitda_distressed').value);
+        formData.append('ebitda_clean', document.getElementById('ebitda_clean').value);
+        formData.append('ebitda_recovery', document.getElementById('ebitda_recovery').value);
+        formData.append('market_price_1l', document.getElementById('market_price_1l').value);
+        formData.append('discount_rate', document.getElementById('discount_rate').value);
+        formData.append('resolution_months', document.getElementById('resolution_months').value);
+        formData.append('ch11_costs', document.getElementById('ch11_costs').value);
+
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Generation failed');
+        }
+
+        generatedHtml = data.html;
+        showStatus('✓ Analysis complete', 'success');
+        
+        reportFrame.srcdoc = generatedHtml;
+        resultsSection.classList.add('visible');
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+      } catch (error) {
+        showStatus(`Error: ${error.message}`, 'error');
+      } finally {
+        generateBtn.disabled = false;
+      }
+    }
+
+    downloadBtn.addEventListener('click', () => {
+      if (!generatedHtml) return;
+      const blob = new Blob([generatedHtml], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tse_recovery_${new Date().toISOString().split('T')[0]}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    function showStatus(message, type) {
+      statusMessage.textContent = message;
+      statusMessage.className = `status-message ${type}`;
+      if (type === 'loading') {
+        statusMessage.innerHTML = `<span class="spinner"></span>${message}`;
+      }
+    }
+  </script>
+</body>
+</html>

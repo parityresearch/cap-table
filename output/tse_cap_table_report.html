@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TSE Cap Table .xlsx - TSE Cap Table Simulation</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --bg:#f6f4ef;
+  --paper:#ffffff;
+  --paper-strong:#fcfbf8;
+  --border:#ddd6ca;
+  --ink:#1e1b16;
+  --muted:#746b5f;
+  --accent:#20262d;
+  --accent-soft:#e8ecef;
+  --good:#246a4a;
+  --warn:#a4631b;
+  --bad:#8b3d35;
+  --fulcrum:#185fa5;
+  --shadow:0 22px 60px rgba(28,24,18,.08);
+}
+html{
+  background:radial-gradient(circle at top left,rgba(232,236,239,.9),transparent 28rem),
+    linear-gradient(180deg,#fbfaf8 0%,#f3efe7 100%);
+  min-height:100%;
+}
+body{margin:0;color:var(--ink);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+.shell{max-width:1320px;margin:0 auto;padding:32px 22px 56px}
+.hero{background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(251,249,245,.98));border:1px solid rgba(221,214,202,.9);border-radius:28px;box-shadow:var(--shadow);padding:32px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:auto -80px -90px auto;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(232,236,239,.95),rgba(232,236,239,0))}
+.eyebrow,.label,.small,.table th,.table td,.axis-label,.cell-note{font-family:"SFMono-Regular","IBM Plex Mono","Menlo",monospace}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.hero h1{font-size:clamp(2.3rem,5vw,4.6rem);line-height:.95;letter-spacing:-.05em;margin:0;max-width:12ch}
+.hero p{max-width:48rem;font-size:1.02rem;line-height:1.7;color:#453d33;margin:18px 0 0}
+.hero-grid{display:grid;grid-template-columns:1.6fr .9fr;gap:22px;align-items:end}
+.meta-card{background:rgba(250,248,244,.92);border:1px solid var(--border);border-radius:22px;padding:18px 18px 16px;position:relative;z-index:1}
+.meta-line{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid rgba(221,214,202,.8)}
+.meta-line:last-child{border-bottom:none;padding-bottom:0}
+.meta-key{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+.meta-value{font-size:13px;text-align:right}
+.grid{display:grid;gap:18px;margin-top:18px}
+.metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:rgba(255,255,255,.92);border:1px solid rgba(221,214,202,.92);border-radius:24px;padding:22px;box-shadow:0 10px 28px rgba(28,24,18,.04)}
+.metric-value{font-size:clamp(1.8rem,4vw,3rem);line-height:.95;letter-spacing:-.05em}
+.metric-value.good{color:var(--good)}
+.metric-value.warn{color:var(--warn)}
+.metric-value.bad{color:var(--bad)}
+.label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.section{margin-top:18px}
+.split{display:grid;grid-template-columns:1.08fr .92fr;gap:18px}
+.three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.histogram{display:flex;align-items:flex-end;gap:6px;height:280px;margin-top:18px;padding-top:10px}
+.bar{flex:1;border-radius:14px 14px 4px 4px;background:linear-gradient(180deg,#20262d,#cfd7dc);position:relative;min-width:12px}
+.bar::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);background:#1f252c;color:#fff;padding:7px 8px;border-radius:8px;font-size:10px;line-height:1.4;opacity:0;pointer-events:none;transition:opacity .15s;white-space:nowrap;z-index:10}
+.bar:hover::after{opacity:1}
+.axis{display:flex;justify-content:space-between;margin-top:12px;color:var(--muted);font-size:11px}
+.recovery-list{display:grid;gap:12px;margin-top:16px}
+.recovery-row{display:grid;grid-template-columns:140px 1fr 110px;gap:16px;align-items:center;padding:14px 16px;border:1px solid rgba(221,214,202,.9);border-radius:18px;background:linear-gradient(180deg,#fff,#fcfaf6)}
+.recovery-name{font-size:1rem}
+.track{height:14px;background:#efe9de;border-radius:999px;overflow:hidden}
+.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#20262d,#5d7688)}
+.recovery-meta{text-align:right}
+.kpi-inline{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;color:#4f483f}
+.kpi-inline span{display:block}
+.kpi-inline small{font-family:"SFMono-Regular","IBM Plex Mono","Menlo",monospace;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.1em}
+.scenario-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.scenario-card{padding:18px;border-radius:22px;border:1px solid rgba(221,214,202,.9);background:linear-gradient(180deg,#ffffff,#fbfaf7)}
+.scenario-card h3{margin:0 0 8px;font-size:1.35rem;letter-spacing:-.03em}
+.stack{display:grid;gap:10px;margin-top:14px}
+.stack-row{display:grid;grid-template-columns:1fr auto;gap:14px;padding-top:10px;border-top:1px solid rgba(221,214,202,.85)}
+.stack-row:first-child{border-top:none;padding-top:0}
+.table-wrap{overflow:auto;margin-top:14px}
+.table{width:100%;border-collapse:collapse}
+.table th{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);text-align:left;padding:0 0 10px}
+.table td{padding:12px 0;border-top:1px solid rgba(221,214,202,.85);font-size:13px;vertical-align:top}
+.table td strong{display:block;font-size:14px;margin-bottom:3px}
+.heatmap{display:grid;grid-template-columns:120px repeat(5,1fr);gap:8px;margin-top:18px;align-items:stretch}
+.heatmap-header{font-size:11px;color:var(--muted);padding:10px 8px}
+.heatmap-label{display:flex;align-items:center;font-size:11px;color:var(--muted);padding-left:4px}
+.cell{padding:12px;border-radius:16px;border:1px solid rgba(221,214,202,.85);min-height:96px;display:flex;flex-direction:column;justify-content:space-between}
+.cell-note{font-size:10px;line-height:1.5}
+/* ---- new sections ---- */
+.ebitda-card{padding:20px;border-radius:22px;border:1px solid rgba(221,214,202,.9);background:linear-gradient(180deg,#fff,#fbfaf7)}
+.ebitda-card .case-label{font-size:1.1rem;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.ebitda-card .rationale{font-size:12px;color:var(--muted);font-family:"SFMono-Regular","IBM Plex Mono","Menlo",monospace;line-height:1.6;margin-bottom:14px}
+.ebitda-card .wf-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-top:1px solid rgba(221,214,202,.7)}
+.ebitda-card .wf-row:first-of-type{border-top:none}
+.ebitda-card .wf-layer{color:var(--muted)}
+.fulcrum-banner{margin-top:10px;padding:8px 12px;border-radius:10px;background:rgba(24,95,165,.08);border:1px solid rgba(24,95,165,.22);font-size:12px;color:var(--fulcrum);font-family:"SFMono-Regular","IBM Plex Mono","Menlo",monospace}
+.implied-table{width:100%;border-collapse:collapse;margin-top:14px}
+.implied-table th{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);text-align:left;padding-bottom:10px}
+.implied-table td{font-size:13px;padding:10px 0;border-top:1px solid rgba(221,214,202,.85)}
+.implied-table .gap-pos{color:var(--good);font-weight:700}
+.implied-table .gap-neg{color:var(--bad);font-weight:700}
+.pik-table{width:100%;border-collapse:collapse;margin-top:14px}
+.pik-table th{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);text-align:left;padding-bottom:10px}
+.pik-table td{font-size:13px;padding:10px 0;border-top:1px solid rgba(221,214,202,.85)}
+.leakage-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid rgba(221,214,202,.85);font-size:13px}
+.leakage-row:first-child{border-top:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-family:"SFMono-Regular","IBM Plex Mono","Menlo",monospace;font-weight:700}
+.badge-fulcrum{background:rgba(24,95,165,.12);color:var(--fulcrum)}
+.badge-good{background:rgba(36,106,74,.1);color:var(--good)}
+.badge-bad{background:rgba(139,61,53,.1);color:var(--bad)}
+.market-implied-box{margin-top:18px;padding:16px 20px;border-radius:18px;background:rgba(28,24,18,.04);border:1px solid rgba(221,214,202,.9)}
+.market-implied-box .mi-label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.market-implied-box .mi-value{font-size:1.6rem;letter-spacing:-.04em;margin-top:4px}
+.footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:right}
+@media(max-width:1024px){.hero-grid,.split,.scenario-grid,.metrics,.three-col{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){
+  .shell{padding:18px 14px 40px}
+  .hero,.card{padding:20px}
+  .hero-grid,.split,.scenario-grid,.metrics,.three-col{grid-template-columns:1fr}
+  .recovery-row{grid-template-columns:1fr;gap:10px}
+  .recovery-meta{text-align:left}
+  .heatmap{grid-template-columns:1fr}
+  .heatmap-header{display:none}
+  .heatmap-label{padding-left:0}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">TSE cap table recovery engine</div>
+        <h1>Monte Carlo exit waterfall.</h1>
+        <p>
+          Analysis over <strong>TSE Cap Table .xlsx</strong> — Monte Carlo recovery simulation,
+          three EBITDA cases, PIK accretion, fulcrum security identification,
+          Chapter 11 cost leakage, and implied 1L trading price vs market.
+        </p>
+      </div>
+      <div class="meta-card">
+        <div class="meta-line"><div class="meta-key">Generated</div><div class="meta-value">2026-04-16T19:31:45-07:00</div></div>
+        <div class="meta-line"><div class="meta-key">Runs</div><div class="meta-value" id="runs"></div></div>
+        <div class="meta-line"><div class="meta-key">EBITDA base</div><div class="meta-value" id="ebitda-base"></div></div>
+        <div class="meta-line"><div class="meta-key">Multiple range</div><div class="meta-value" id="multiple-range"></div></div>
+        <div class="meta-line"><div class="meta-key">Debt to clear</div><div class="meta-value" id="debt-total"></div></div>
+        <div class="meta-line"><div class="meta-key">1L market price</div><div class="meta-value" id="market-price"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid metrics">
+    <article class="card">
+      <div class="metric-value bad" id="insolvency-prob"></div>
+      <div class="label">Probability EV fails to clear debt</div>
+    </article>
+    <article class="card">
+      <div class="metric-value" id="median-ev"></div>
+      <div class="label">Median enterprise value</div>
+    </article>
+    <article class="card">
+      <div class="metric-value good" id="equity-prob"></div>
+      <div class="label">Probability equity has value</div>
+    </article>
+    <article class="card">
+      <div class="metric-value warn" id="expected-equity"></div>
+      <div class="label">Expected residual equity</div>
+    </article>
+  </section>
+
+  <section class="grid split section">
+    <article class="card">
+      <div class="eyebrow">Enterprise value distribution</div>
+      <div class="metric-value" id="mean-ev"></div>
+      <div class="label">Mean simulated EV</div>
+      <div class="kpi-inline">
+        <span><strong id="ev-p10"></strong><br><small>P10</small></span>
+        <span><strong id="ev-p50"></strong><br><small>P50</small></span>
+        <span><strong id="ev-p90"></strong><br><small>P90</small></span>
+      </div>
+      <div class="histogram" id="ev-histogram"></div>
+      <div class="axis">
+        <div class="axis-label" id="ev-axis-start"></div>
+        <div class="axis-label" id="ev-axis-end"></div>
+      </div>
+    </article>
+    <article class="card">
+      <div class="eyebrow">Layer recovery outlook</div>
+      <div class="recovery-list" id="layer-recoveries"></div>
+    </article>
+  </section>
+
+  <!-- EBITDA scenarios -->
+  <section class="card section">
+    <div class="eyebrow">Three EBITDA cases — what should the model use?</div>
+    <div class="three-col" id="ebitda-scenario-grid" style="margin-top:14px"></div>
+    <div class="market-implied-box">
+      <div class="mi-label">Market-implied EBITDA (derived from 11c 1L trading price)</div>
+      <div class="mi-value" id="market-implied-ebitda"></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;font-family:'SFMono-Regular',monospace">
+        Assumes: Super ($<span id="mi-super"></span>M) paid in full, then 11c × 1L face recovers remainder.
+        Divide by <span id="mi-mult"></span>x mid multiple to back-solve EBITDA.
+        Market is pricing the distressed case.
+      </div>
+    </div>
+  </section>
+
+  <!-- Fulcrum security -->
+  <section class="grid split section">
+    <article class="card">
+      <div class="eyebrow">Fulcrum security — base case EV (net of Ch.11 costs)</div>
+      <div id="fulcrum-rows" style="margin-top:14px"></div>
+      <div style="margin-top:14px;font-size:13px;line-height:1.7;color:#453d33">
+        The fulcrum tranche receives partial recovery and converts to equity in the reorganised company.
+        Buying the fulcrum below implied fair value is the core distressed investment thesis.
+      </div>
+    </article>
+    <article class="card">
+      <div class="eyebrow">Chapter 11 cost leakage</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px">
+        Professional fees (~$<span id="ch11-cost-display"></span>M) reduce distributable EV before waterfall.
+        Leakage is felt entirely by the fulcrum and junior tranches.
+      </div>
+      <div id="leakage-rows"></div>
+    </article>
+  </section>
+
+  <!-- Implied trading price -->
+  <section class="card section">
+    <div class="eyebrow">Implied fair value vs market price (1L debt)</div>
+    <div style="font-size:13px;color:#453d33;line-height:1.7;margin-bottom:6px">
+      Implied fair value = expected recovery discounted at
+      <strong id="dr-display"></strong>% over <strong id="res-months-display"></strong> months.
+      Gap = implied fair value minus <strong>11c</strong> market price. Positive gap = 1L is cheap vs model.
+    </div>
+    <table class="implied-table">
+      <thead>
+        <tr>
+          <th>EBITDA case</th>
+          <th>EBITDA ($M)</th>
+          <th>Net EV ($M)</th>
+          <th>1L recovery</th>
+          <th>Recovery (¢)</th>
+          <th>Implied fair value (¢)</th>
+          <th>Market price (¢)</th>
+          <th>Gap (¢)</th>
+          <th>Gross return if bought at 11¢</th>
+        </tr>
+      </thead>
+      <tbody id="implied-table-body"></tbody>
+    </table>
+  </section>
+
+  <!-- PIK accretion -->
+  <section class="card section">
+    <div class="eyebrow">PIK accretion — delay compounds the debt</div>
+    <div style="font-size:13px;color:#453d33;line-height:1.7;margin-bottom:6px">
+      Term Loan B carries SOFR + 8.5% (~<strong id="pik-rate-display"></strong>% p.a.) with a PIK toggle.
+      Every month of restructuring delay grows the outstanding balance, compressing recovery for all 1L holders.
+    </div>
+    <table class="pik-table" id="pik-table">
+      <thead>
+        <tr>
+          <th>Instrument</th>
+          <th>Layer</th>
+          <th>Original balance ($M)</th>
+          <th>PIK rate (% p.a.)</th>
+          <th>Resolution (months)</th>
+          <th>Accreted balance ($M)</th>
+          <th>Additional debt ($M)</th>
+        </tr>
+      </thead>
+      <tbody id="pik-tbody"></tbody>
+    </table>
+  </section>
+
+  <!-- Original deterministic scenarios -->
+  <section class="grid split section">
+    <article class="card">
+      <div class="eyebrow">Deterministic reference cases</div>
+      <div class="scenario-grid" id="scenario-grid"></div>
+    </article>
+    <article class="card">
+      <div class="eyebrow">Sensitivity map</div>
+      <div class="label">Each cell: EV, 2L recovery, residual equity.</div>
+      <div class="heatmap" id="heatmap"></div>
+    </article>
+  </section>
+
+  <!-- Instrument table -->
+  <section class="card section">
+    <div class="eyebrow">Instrument detail</div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Instrument</th><th>Layer</th><th>Principal</th><th>Maturity</th>
+            <th>Interest</th><th>PIK</th><th>Expected recovery</th><th>Money-good</th>
+          </tr>
+        </thead>
+        <tbody id="instrument-table"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="footer">Generated by <code>simulate_tse_cap_table.py</code> &mdash; TSE distressed credit model.</div>
+</div>
+
+<script id="report-data" type="application/json">{"generated_at":"2026-04-16T19:31:45-07:00","workbook":{"name":"TSE Cap Table .xlsx","base_ebitda":162.5,"multiple_low":5.0,"multiple_mid":6.0,"multiple_high":7.0,"listed_debt":2588.0,"other_claims":3.9,"total_debt_to_clear":2591.9,"instruments":[{"layer":"Super","rank":1,"priority_label":"1. Super","name":"A/R Facility","principal":118.0,"maturity":"n/a","interest_type":"n/a","is_pik":false,"pik_rate":0.0},{"layer":"Super","rank":1,"priority_label":"1. Super","name":"Super-Priority Revolver (RCF)","principal":75.0,"maturity":"2028","interest_type":"Cash","is_pik":false,"pik_rate":0.0},{"layer":"1L","rank":2,"priority_label":"2. 1st Senior Secured","name":"Refi Term Loans","principal":1238.0,"maturity":"n/a","interest_type":"n/a","is_pik":false,"pik_rate":0.0},{"layer":"1L","rank":2,"priority_label":"2. 1st Senior Secured","name":"Term Loan B","principal":715.0,"maturity":"2028","interest_type":"SOFR + 8.5% (PIK Option)","is_pik":true,"pik_rate":0.138},{"layer":"2L","rank":3,"priority_label":"3. 2nd Lien","name":"Senior Secured Notes (2029)","principal":442.0,"maturity":"2029","interest_type":"7.625% Cash","is_pik":false,"pik_rate":0.0},{"layer":"Junior","rank":4,"priority_label":"4. Junior","name":"Unsecured Notes / Trade Claims","principal":0.0,"maturity":"2025/29","interest_type":"Various","is_pik":false,"pik_rate":0.0}]},"assumptions":{"runs":100,"seed":7,"ebitda_cv":0.22,"debt_volatility":0.03,"ebitda_distressed":72.5,"ebitda_clean":135.5,"ebitda_recovery":225.0,"market_price_1l":11.0,"discount_rate":20.0,"resolution_months":12,"ch11_costs":75.0},"summary":{"insolvency_probability":1.0,"positive_equity_probability":0.0,"expected_equity_value":0.0,"equity_distribution":{"mean":0.0,"p10":0.0,"p25":0.0,"p50":0.0,"p75":0.0,"p90":0.0},"enterprise_value_distribution":{"mean":936.3851559175171,"p10":670.3061248534424,"p25":818.9363647100092,"p50":929.5765941680276,"p75":1039.1569913587473,"p90":1167.7494086233298},"ebitda_distribution":{"mean":155.61358575904387,"p10":119.78407654699691,"p25":137.79029830149923,"p50":154.7445188943977,"p75":171.38867359041132,"p90":193.60623078122802},"exit_multiple_distribution":{"mean":6.022782057683004,"p10":5.463800251122668,"p25":5.730441935705656,"p50":6.023805506441188,"p75":6.325248723475321,"p90":6.588858926196179}},"charts":{"enterprise_value_histogram":[{"start":537.3804582685624,"end":588.368031956317,"count":1},{"start":588.368031956317,"end":639.3556056440718,"count":3},{"start":639.3556056440718,"end":690.3431793318265,"count":7},{"start":690.3431793318265,"end":741.3307530195812,"count":4},{"start":741.3307530195812,"end":792.3183267073358,"count":6},{"start":792.3183267073358,"end":843.3059003950905,"count":11},{"start":843.3059003950905,"end":894.2934740828453,"count":7},{"start":894.2934740828453,"end":945.2810477705999,"count":14},{"start":945.2810477705999,"end":996.2686214583546,"count":14},{"start":996.2686214583546,"end":1047.2561951461093,"count":8},{"start":1047.2561951461093,"end":1098.2437688338641,"count":5},{"start":1098.2437688338641,"end":1149.2313425216187,"count":5},{"start":1149.2313425216187,"end":1200.2189162093732,"count":10},{"start":1200.2189162093732,"end":1251.206489897128,"count":2},{"start":1251.206489897128,"end":1302.1940635848828,"count":0},{"start":1302.1940635848828,"end":1353.1816372726375,"count":0},{"start":1353.1816372726375,"end":1404.169210960392,"count":1},{"start":1404.169210960392,"end":1455.1567846481469,"count":2}],"equity_histogram":[{"start":-0.5,"end":-0.4285714285714286,"count":0},{"start":-0.4285714285714286,"end":-0.35714285714285715,"count":0},{"start":-0.35714285714285715,"end":-0.2857142857142857,"count":0},{"start":-0.2857142857142857,"end":-0.2142857142857143,"count":0},{"start":-0.2142857142857143,"end":-0.1428571428571429,"count":0},{"start":-0.1428571428571429,"end":-0.07142857142857145,"count":0},{"start":-0.07142857142857145,"end":0.0,"count":0},{"start":0.0,"end":0.0714285714285714,"count":100},{"start":0.0714285714285714,"end":0.1428571428571428,"count":0},{"start":0.1428571428571428,"end":0.2142857142857142,"count":0},{"start":0.2142857142857142,"end":0.2857142857142857,"count":0},{"start":0.2857142857142857,"end":0.3571428571428571,"count":0},{"start":0.3571428571428571,"end":0.4285714285714285,"count":0},{"start":0.4285714285714285,"end":0.5,"count":0}]},"layer_stats":[{"layer":"Super","current_claim":193.0,"expected_claim_at_exit":192.30762374598712,"expected_recovered":192.30762374598712,"expected_recovery_pct":1.0,"money_good_probability":1.0,"recovery_distribution":{"mean":1.0,"p10":1.0,"p25":1.0,"p50":1.0,"p75":1.0,"p90":1.0}},{"layer":"1L","current_claim":1953.0,"expected_claim_at_exit":1945.993726300066,"expected_recovered":744.0775321715299,"expected_recovery_pct":0.38314347156128725,"money_good_probability":0.0,"recovery_distribution":{"mean":0.38314347156128725,"p10":0.24700112681126446,"p25":0.31779084561577847,"p50":0.3823814923247547,"p75":0.446770112055459,"p90":0.49890227997313663}},{"layer":"2L","current_claim":442.0,"expected_claim_at_exit":440.41435075505854,"expected_recovered":0.0,"expected_recovery_pct":0.0,"money_good_probability":0.0,"recovery_distribution":{"mean":0.0,"p10":0.0,"p25":0.0,"p50":0.0,"p75":0.0,"p90":0.0}}],"instrument_stats":[{"layer":"Super","instrument":"A/R Facility","principal":118.0,"maturity":"n/a","interest_type":"n/a","is_pik":false,"pik_rate_pct":0.0,"expected_claim_at_exit":117.57668187578483,"expected_recovered":117.57668187578483,"expected_recovery_pct":1.0,"money_good_probability":1.0,"recovery_distribution":{"mean":1.0,"p10":1.0,"p25":1.0,"p50":1.0,"p75":1.0,"p90":1.0}},{"layer":"Super","instrument":"Super-Priority Revolver (RCF)","principal":75.0,"maturity":"2028","interest_type":"Cash","is_pik":false,"pik_rate_pct":0.0,"expected_claim_at_exit":74.73094187020224,"expected_recovered":74.73094187020224,"expected_recovery_pct":1.0,"money_good_probability":1.0,"recovery_distribution":{"mean":1.0,"p10":1.0,"p25":1.0,"p50":1.0,"p75":1.0,"p90":1.0}},{"layer":"1L","instrument":"Refi Term Loans","principal":1238.0,"maturity":"n/a","interest_type":"n/a","is_pik":false,"pik_rate_pct":0.0,"expected_claim_at_exit":1233.5587471374713,"expected_recovered":471.6681949965969,"expected_recovery_pct":0.38314347156128725,"money_good_probability":0.0,"recovery_distribution":{"mean":0.38314347156128725,"p10":0.24700112681126446,"p25":0.31779084561577847,"p50":0.3823814923247547,"p75":0.446770112055459,"p90":0.49890227997313663}},{"layer":"1L","instrument":"Term Loan B","principal":715.0,"maturity":"2028","interest_type":"SOFR + 8.5% (PIK Option)","is_pik":true,"pik_rate_pct":13.8,"expected_claim_at_exit":712.4349791625947,"expected_recovered":272.40933717493283,"expected_recovery_pct":0.38314347156128725,"money_good_probability":0.0,"recovery_distribution":{"mean":0.38314347156128725,"p10":0.24700112681126446,"p25":0.31779084561577847,"p50":0.3823814923247547,"p75":0.446770112055459,"p90":0.49890227997313663}},{"layer":"2L","instrument":"Senior Secured Notes (2029)","principal":442.0,"maturity":"2029","interest_type":"7.625% Cash","is_pik":false,"pik_rate_pct":0.0,"expected_claim_at_exit":440.41435075505854,"expected_recovered":0.0,"expected_recovery_pct":0.0,"money_good_probability":0.0,"recovery_distribution":{"mean":0.0,"p10":0.0,"p25":0.0,"p50":0.0,"p75":0.0,"p90":0.0}}],"scenarios":[{"label":"Distressed","enterprise_value":812.5,"waterfall":[{"layer":"Super","claim":193.0,"recovered":193.0,"recovery_pct":1.0},{"layer":"1L","claim":1953.0,"recovered":619.5,"recovery_pct":0.3172043010752688},{"layer":"2L","claim":442.0,"recovered":0.0,"recovery_pct":0.0},{"layer":"Other claims reserve","claim":3.9,"recovered":0.0,"recovery_pct":0.0},{"layer":"Equity residual","claim":0.0,"recovered":0.0,"recovery_pct":0.0}]},{"label":"Base","enterprise_value":975.0,"waterfall":[{"layer":"Super","claim":193.0,"recovered":193.0,"recovery_pct":1.0},{"layer":"1L","claim":1953.0,"recovered":782.0,"recovery_pct":0.40040962621607784},{"layer":"2L","claim":442.0,"recovered":0.0,"recovery_pct":0.0},{"layer":"Other claims reserve","claim":3.9,"recovered":0.0,"recovery_pct":0.0},{"layer":"Equity residual","claim":0.0,"recovered":0.0,"recovery_pct":0.0}]},{"label":"Healthy","enterprise_value":1137.5,"waterfall":[{"layer":"Super","claim":193.0,"recovered":193.0,"recovery_pct":1.0},{"layer":"1L","claim":1953.0,"recovered":944.5,"recovery_pct":0.4836149513568868},{"layer":"2L","claim":442.0,"recovered":0.0,"recovery_pct":0.0},{"layer":"Other claims reserve","claim":3.9,"recovered":0.0,"recovery_pct":0.0},{"layer":"Equity residual","claim":0.0,"recovered":0.0,"recovery_pct":0.0}]}],"sensitivity":{"ebitda_values":[121.875,146.25,162.5,178.75000000000003,203.125],"multiple_values":[5.0,5.5,6.0,6.5,7.0],"cells":[[{"enterprise_value":609.375,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":670.3125,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":731.25,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":792.1875,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":853.125,"equity_value":0.0,"second_lien_recovery":0.0}],[{"enterprise_value":731.25,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":804.375,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":877.5,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":950.625,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":1023.75,"equity_value":0.0,"second_lien_recovery":0.0}],[{"enterprise_value":812.5,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":893.75,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":975.0,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":1056.25,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":1137.5,"equity_value":0.0,"second_lien_recovery":0.0}],[{"enterprise_value":893.7500000000001,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":983.1250000000001,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":1072.5000000000002,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":1161.8750000000002,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":1251.2500000000002,"equity_value":0.0,"second_lien_recovery":0.0}],[{"enterprise_value":1015.625,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":1117.1875,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":1218.75,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":1320.3125,"equity_value":0.0,"second_lien_recovery":0.0},{"enterprise_value":1421.875,"equity_value":0.0,"second_lien_recovery":0.0}]],"max_equity":0.0},"pik_accretion":[{"instrument":"Term Loan B","layer":"1L","original_balance":715.0,"accreted_balance":820.1564167503245,"additional_debt":105.15641675032452,"pik_rate_pct":13.8,"months":12}],"ebitda_scenarios":[{"label":"Distressed","ebitda":72.5,"rationale":"Annualised Q3/Q4 exit run-rate (~$30M/qtr). Market-implied at 11c. Structural demand weakness, tariff headwinds, Asian import pressure.","color":"bad","multiple":6.0,"ev_gross":435.0,"ch11_costs":75.0,"ev_net":360.0,"waterfall":[{"layer":"Super","claim":193.0,"recovered":193.0,"recovery_pct":1.0},{"layer":"1L","claim":1953.0,"recovered":167.0,"recovery_pct":0.0855094726062468},{"layer":"2L","claim":442.0,"recovered":0.0,"recovery_pct":0.0},{"layer":"Other claims reserve","claim":3.9,"recovered":0.0,"recovery_pct":0.0},{"layer":"Equity residual","claim":0.0,"recovered":0.0,"recovery_pct":0.0}],"fulcrum_layer":"1L"},{"label":"Clean run-rate","ebitda":135.5,"rationale":"Reported $162.5M adj. EBITDA minus $27M one-time PC licensing income. Best estimate of recurring earning power at current volume levels.","color":"warn","multiple":6.0,"ev_gross":813.0,"ch11_costs":75.0,"ev_net":738.0,"waterfall":[{"layer":"Super","claim":193.0,"recovered":193.0,"recovery_pct":1.0},{"layer":"1L","claim":1953.0,"recovered":545.0,"recovery_pct":0.279057859703021},{"layer":"2L","claim":442.0,"recovered":0.0,"recovery_pct":0.0},{"layer":"Other claims reserve","claim":3.9,"recovered":0.0,"recovery_pct":0.0},{"layer":"Equity residual","claim":0.0,"recovered":0.0,"recovery_pct":0.0}],"fulcrum_layer":"1L"},{"label":"Recovery","ebitda":225.0,"rationale":"Normalised demand (+10% volume = ~$100M EBITDA per mgmt). Trade certainty, rate cuts, European reshoring. This is what reorganised equity holders are betting on.","color":"good","multiple":6.0,"ev_gross":1350.0,"ch11_costs":75.0,"ev_net":1275.0,"waterfall":[{"layer":"Super","claim":193.0,"recovered":193.0,"recovery_pct":1.0},{"layer":"1L","claim":1953.0,"recovered":1082.0,"recovery_pct":0.5540194572452637},{"layer":"2L","claim":442.0,"recovered":0.0,"recovery_pct":0.0},{"layer":"Other claims reserve","claim":3.9,"recovered":0.0,"recovery_pct":0.0},{"layer":"Equity residual","claim":0.0,"recovered":0.0,"recovery_pct":0.0}],"fulcrum_layer":"1L"}],"implied_price":{"scenarios":[{"scenario":"Distressed","ebitda":72.5,"ev_net":360.0,"recovery_pct":0.0855094726062468,"recovery_cents":8.55094726062468,"implied_fair_value":7.1257893838539,"market_price":11.0,"gap_cents":-3.8742106161461,"implied_gross_return_pct":-22.264115812502904,"discount_rate":20.0,"resolution_months":12},{"scenario":"Clean run-rate","ebitda":135.5,"ev_net":738.0,"recovery_pct":0.279057859703021,"recovery_cents":27.905785970302098,"implied_fair_value":23.254821641918415,"market_price":11.0,"gap_cents":12.254821641918415,"implied_gross_return_pct":153.68896336638272,"discount_rate":20.0,"resolution_months":12},{"scenario":"Recovery","ebitda":225.0,"ev_net":1275.0,"recovery_pct":0.5540194572452637,"recovery_cents":55.40194572452637,"implied_fair_value":46.16828810377198,"market_price":11.0,"gap_cents":35.16828810377198,"implied_gross_return_pct":403.6540520411489,"discount_rate":20.0,"resolution_months":12}],"market_price":11.0,"discount_rate":20.0,"resolution_months":12,"discount_factor":0.8333333333333334,"market_implied_ev":407.83000000000004,"market_implied_ebitda":67.97166666666668,"market_implied_multiple":6.0},"ch11_leakage":[{"scenario":"Distressed","ev_gross":435.0,"ch11_costs":75.0,"ev_net":360.0,"l1_recovery_without_costs":0.12391193036354327,"l1_recovery_with_costs":0.0855094726062468,"recovery_drag_pp":0.03840245775729646},{"scenario":"Clean run-rate","ev_gross":813.0,"ch11_costs":75.0,"ev_net":738.0,"l1_recovery_without_costs":0.31746031746031744,"l1_recovery_with_costs":0.279057859703021,"recovery_drag_pp":0.03840245775729645},{"scenario":"Recovery","ev_gross":1350.0,"ch11_costs":75.0,"ev_net":1275.0,"l1_recovery_without_costs":0.5924219150025601,"l1_recovery_with_costs":0.5540194572452637,"recovery_drag_pp":0.03840245775729645}],"fulcrum_base":{"waterfall":[{"layer":"Super","claim":193.0,"recovered":193.0,"recovery_pct":1.0,"is_fulcrum":false,"status":"Money-good"},{"layer":"1L","claim":1953.0,"recovered":707.0,"recovery_pct":0.36200716845878134,"is_fulcrum":true,"status":"FULCRUM \u2014 partial recovery, becomes new equity"},{"layer":"2L","claim":442.0,"recovered":0.0,"recovery_pct":0.0,"is_fulcrum":false,"status":"Wiped out"},{"layer":"Equity","claim":0.0,"recovered":0.0,"recovery_pct":0.0,"is_fulcrum":false,"status":"Wiped out"}],"fulcrum_layer":"1L","ev_used":900.0}}</script>
+<script>
+const report = JSON.parse(document.getElementById('report-data').textContent);
+
+const money = v => `$${Number(v).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})}M`;
+const pct   = v => `${(Number(v)*100).toFixed(1)}%`;
+const cents = v => `${Number(v).toFixed(1)}¢`;
+const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
+const fix1  = v => Number(v).toFixed(1);
+
+// Meta
+document.getElementById('runs').textContent           = report.assumptions.runs.toLocaleString();
+document.getElementById('ebitda-base').textContent    = money(report.workbook.base_ebitda);
+document.getElementById('multiple-range').textContent = `${report.workbook.multiple_low.toFixed(1)}x to ${report.workbook.multiple_high.toFixed(1)}x`;
+document.getElementById('debt-total').textContent     = money(report.workbook.total_debt_to_clear);
+document.getElementById('market-price').textContent   = `${report.assumptions.market_price_1l.toFixed(0)}¢`;
+
+// Summary
+document.getElementById('insolvency-prob').textContent  = pct(report.summary.insolvency_probability);
+document.getElementById('median-ev').textContent        = money(report.summary.enterprise_value_distribution.p50);
+document.getElementById('equity-prob').textContent      = pct(report.summary.positive_equity_probability);
+document.getElementById('expected-equity').textContent  = money(report.summary.expected_equity_value);
+document.getElementById('mean-ev').textContent          = money(report.summary.enterprise_value_distribution.mean);
+document.getElementById('ev-p10').textContent           = money(report.summary.enterprise_value_distribution.p10);
+document.getElementById('ev-p50').textContent           = money(report.summary.enterprise_value_distribution.p50);
+document.getElementById('ev-p90').textContent           = money(report.summary.enterprise_value_distribution.p90);
+
+// EV histogram
+const evHistogram = report.charts.enterprise_value_histogram;
+const maxCount = Math.max(...evHistogram.map(b=>b.count),1);
+const histEl = document.getElementById('ev-histogram');
+evHistogram.forEach(bin=>{
+  const bar = document.createElement('div');
+  bar.className='bar';
+  bar.style.height=`${Math.max(8,(bin.count/maxCount)*100)}%`;
+  bar.dataset.tip=`${money(bin.start)} – ${money(bin.end)} · ${bin.count.toLocaleString()} runs`;
+  histEl.appendChild(bar);
+});
+document.getElementById('ev-axis-start').textContent = money(evHistogram[0].start);
+document.getElementById('ev-axis-end').textContent   = money(evHistogram[evHistogram.length-1].end);
+
+// Layer recoveries
+const layerRecoveries = document.getElementById('layer-recoveries');
+report.layer_stats.forEach(layer=>{
+  const row = document.createElement('div');
+  row.className='recovery-row';
+  row.innerHTML=`
+    <div>
+      <div class="label">${layer.layer}</div>
+      <div class="recovery-name">${money(layer.current_claim)}</div>
+    </div>
+    <div>
+      <div class="track"><div class="fill" style="width:${clamp(layer.expected_recovery_pct*100,0,100)}%"></div></div>
+      <div class="kpi-inline">
+        <span><strong>${pct(layer.recovery_distribution.p10)}</strong><br><small>P10</small></span>
+        <span><strong>${pct(layer.recovery_distribution.p50)}</strong><br><small>P50</small></span>
+        <span><strong>${pct(layer.recovery_distribution.p90)}</strong><br><small>P90</small></span>
+      </div>
+    </div>
+    <div class="recovery-meta">
+      <div><strong>${pct(layer.expected_recovery_pct)}</strong></div>
+      <div class="label">Expected recovery</div>
+      <div style="margin-top:8px"><strong>${pct(layer.money_good_probability)}</strong></div>
+      <div class="label">Money-good</div>
+    </div>`;
+  layerRecoveries.appendChild(row);
+});
+
+// EBITDA scenarios
+const esgrid = document.getElementById('ebitda-scenario-grid');
+const colorMap = {good:'var(--good)',warn:'var(--warn)',bad:'var(--bad)'};
+report.ebitda_scenarios.forEach(sc=>{
+  const card = document.createElement('div');
+  card.className='ebitda-card';
+  const wfRows = sc.waterfall.map(r=>`
+    <div class="wf-row">
+      <span class="wf-layer">${r.layer}</span>
+      <span>${r.layer==='Equity residual'?money(r.recovered):`${money(r.recovered)} · ${pct(r.recovery_pct)}`}</span>
+    </div>`).join('');
+  const fulcrumHtml = sc.fulcrum_layer
+    ? `<div class="fulcrum-banner">Fulcrum: <strong>${sc.fulcrum_layer}</strong> — partial recovery, becomes new equity</div>`
+    : `<div class="fulcrum-banner" style="background:rgba(139,61,53,.06);border-color:rgba(139,61,53,.2);color:var(--bad)">No fulcrum — EV insufficient to reach any partial tranche</div>`;
+  card.innerHTML=`
+    <div class="case-label" style="color:${colorMap[sc.color]||'var(--ink)'}">
+      ${sc.label} — ${money(sc.ebitda)} EBITDA
+    </div>
+    <div class="rationale">${sc.rationale}</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-family:monospace">
+      EV gross: ${money(sc.ev_gross)} &nbsp;|&nbsp; Ch.11 costs: ${money(sc.ch11_costs)} &nbsp;|&nbsp; Net: ${money(sc.ev_net)}
+    </div>
+    ${wfRows}
+    ${fulcrumHtml}`;
+  esgrid.appendChild(card);
+});
+
+// Market-implied EBITDA
+const ip = report.implied_price;
+document.getElementById('market-implied-ebitda').textContent   = money(ip.market_implied_ebitda);
+document.getElementById('mi-super').textContent                = fix1(report.workbook.instruments.filter(i=>i.layer==='Super').reduce((s,i)=>s+i.principal,0));
+document.getElementById('mi-mult').textContent                 = fix1(ip.market_implied_multiple);
+
+// Fulcrum security
+const fRows = document.getElementById('fulcrum-rows');
+report.fulcrum_base.waterfall.forEach(r=>{
+  const isFulcrum = r.is_fulcrum;
+  const div = document.createElement('div');
+  div.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid rgba(221,214,202,.85);font-size:13px';
+  if(isFulcrum) div.style.background='rgba(24,95,165,.05)';
+  div.innerHTML=`
+    <span style="width:120px;color:var(--muted)">${r.layer}</span>
+    <span style="flex:1;text-align:center">${r.claim>0?money(r.claim):'—'}</span>
+    <span style="width:80px;text-align:right">${r.claim>0?pct(r.recovery_pct):'—'}</span>
+    <span style="width:160px;text-align:right">
+      <span class="badge ${isFulcrum?'badge-fulcrum':r.recovery_pct>=0.999?'badge-good':'badge-bad'}">${r.status.split(' —')[0]}</span>
+    </span>`;
+  fRows.appendChild(div);
+});
+
+// Ch11 leakage
+document.getElementById('ch11-cost-display').textContent = fix1(report.assumptions.ch11_costs);
+const leakageRows = document.getElementById('leakage-rows');
+report.ch11_leakage.forEach(r=>{
+  const drag = (r.recovery_drag_pp*100).toFixed(1);
+  const div = document.createElement('div');
+  div.className='leakage-row';
+  div.innerHTML=`
+    <span style="font-weight:700">${r.scenario}</span>
+    <span style="color:var(--muted);font-size:12px">Without costs: ${pct(r.l1_recovery_without_costs)}</span>
+    <span style="color:var(--muted);font-size:12px">With costs: ${pct(r.l1_recovery_with_costs)}</span>
+    <span style="color:var(--bad);font-size:12px;font-weight:700">&#8722;${drag}pp</span>`;
+  leakageRows.appendChild(div);
+});
+
+// Implied price table
+document.getElementById('dr-display').textContent        = fix1(ip.discount_rate);
+document.getElementById('res-months-display').textContent = ip.resolution_months;
+const itbody = document.getElementById('implied-table-body');
+ip.scenarios.forEach(r=>{
+  const tr = document.createElement('tr');
+  const gapCls = r.gap_cents>=0?'gap-pos':'gap-neg';
+  const gapSign = r.gap_cents>=0?'+':'';
+  tr.innerHTML=`
+    <td><strong>${r.scenario}</strong></td>
+    <td>${money(r.ebitda)}</td>
+    <td>${money(r.ev_net)}</td>
+    <td>${pct(r.recovery_pct)}</td>
+    <td>${cents(r.recovery_cents)}</td>
+    <td>${cents(r.implied_fair_value)}</td>
+    <td>11.0¢</td>
+    <td class="${gapCls}">${gapSign}${fix1(r.gap_cents)}¢</td>
+    <td class="${r.implied_gross_return_pct>=0?'gap-pos':'gap-neg'}">${gapSign}${fix1(r.implied_gross_return_pct)}%</td>`;
+  itbody.appendChild(tr);
+});
+
+// PIK accretion
+if(report.pik_accretion && report.pik_accretion.length>0){
+  document.getElementById('pik-rate-display').textContent = fix1(report.pik_accretion[0].pik_rate_pct);
+  const pikTbody = document.getElementById('pik-tbody');
+  report.pik_accretion.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML=`
+      <td><strong>${r.instrument}</strong></td>
+      <td>${r.layer}</td>
+      <td>${money(r.original_balance)}</td>
+      <td>${fix1(r.pik_rate_pct)}%</td>
+      <td>${r.months}</td>
+      <td><strong>${money(r.accreted_balance)}</strong></td>
+      <td style="color:var(--bad)">${money(r.additional_debt)}</td>`;
+    pikTbody.appendChild(tr);
+  });
+} else {
+  document.getElementById('pik-rate-display').textContent = '13.8';
+  document.getElementById('pik-table').innerHTML='<p style="font-size:13px;color:var(--muted);padding:14px 0">No PIK instruments detected in workbook.</p>';
+}
+
+// Original scenarios
+const scenarioGrid = document.getElementById('scenario-grid');
+report.scenarios.forEach(scenario=>{
+  const card = document.createElement('div');
+  card.className='scenario-card';
+  const rows = scenario.waterfall.map(item=>`
+    <div class="stack-row">
+      <div>${item.layer}</div>
+      <div>${item.layer==='Equity residual'?money(item.recovered):`${money(item.recovered)} · ${pct(item.recovery_pct)}`}</div>
+    </div>`).join('');
+  card.innerHTML=`<h3>${scenario.label}</h3><div class="label">${money(scenario.enterprise_value)} enterprise value</div><div class="stack">${rows}</div>`;
+  scenarioGrid.appendChild(card);
+});
+
+// Heatmap
+const heatmap = document.getElementById('heatmap');
+heatmap.innerHTML='<div></div>'+report.sensitivity.multiple_values.map(v=>`<div class="heatmap-header">${v.toFixed(2)}x</div>`).join('');
+const maxEquity = report.sensitivity.max_equity||1;
+report.sensitivity.cells.forEach((row,ri)=>{
+  const label = document.createElement('div');
+  label.className='heatmap-label';
+  label.textContent=money(report.sensitivity.ebitda_values[ri])+' EBITDA';
+  heatmap.appendChild(label);
+  row.forEach(cell=>{
+    const tile = document.createElement('div');
+    tile.className='cell';
+    const intensity = clamp(cell.equity_value/maxEquity,0,1);
+    const ink = intensity>0.56?'#ffffff':'#1f1c17';
+    tile.style.background=`linear-gradient(180deg,rgba(32,38,45,${0.08+intensity*0.86}),rgba(232,236,239,.88))`;
+    tile.style.color=ink;
+    tile.innerHTML=`<div><strong>${money(cell.enterprise_value)}</strong></div>
+      <div class="cell-note" style="color:${ink==='#ffffff'?'rgba(255,255,255,.84)':'#5c5348'}">
+        2L recovery: ${pct(cell.second_lien_recovery)}<br>Equity: ${money(cell.equity_value)}
+      </div>`;
+    heatmap.appendChild(tile);
+  });
+});
+
+// Instrument table
+const instrumentTable = document.getElementById('instrument-table');
+report.instrument_stats.forEach(item=>{
+  const row = document.createElement('tr');
+  const pikLabel = item.is_pik?`<span class="badge badge-fulcrum">PIK ${fix1(item.pik_rate_pct)}%</span>`:'—';
+  row.innerHTML=`
+    <td><strong>${item.instrument}</strong></td>
+    <td>${item.layer}</td>
+    <td>${money(item.principal)}</td>
+    <td>${item.maturity}</td>
+    <td>${item.interest_type}</td>
+    <td>${pikLabel}</td>
+    <td>${money(item.expected_recovered)} · ${pct(item.expected_recovery_pct)}</td>
+    <td>${pct(item.money_good_probability)}</td>`;
+  instrumentTable.appendChild(row);
+});
+</script>
+</body>
+</html>
