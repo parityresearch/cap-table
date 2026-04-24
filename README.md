@@ -100,3 +100,17 @@ Generated artifacts:
 - `output/tse_cap_table_instrument_stats.csv`
 - `output/tse_cap_table_scenarios.csv`
 - `output/tse_cap_table_report.html`
+
+## TSE Web App Deployment
+
+The full web app is a Flask service. GitHub Pages can only host the static frontend, so the fastest working public deployment is to run the whole app on Render.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/parityresearch/cap-table/tree/cap-table)
+
+Render is configured in-repo with:
+
+- `render.yaml`
+- `.python-version`
+- `requirements_web.txt`
+
+Once Render finishes the first deploy, use the generated `https://...onrender.com` URL as the live app. That single URL serves both the frontend and `/api/generate`.

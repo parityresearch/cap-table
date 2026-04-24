@@ -16,6 +16,14 @@ pip install -r requirements_web.txt
 open http://localhost:5001
 ```
 
+## Fastest Public Deploy
+
+Deploy the full Flask app on Render:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/parityresearch/cap-table/tree/cap-table)
+
+After Render provisions the service, use the `onrender.com` URL it gives you. That is the correct public app URL. GitHub Pages only serves the static frontend.
+
 ## What You'll See
 
 ### 🎨 Landing Page

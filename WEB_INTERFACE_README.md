@@ -2,6 +2,19 @@
 
 A modern web application for Monte Carlo cap table analysis with PIK accretion, Chapter 11 cost leakage, and fulcrum security identification.
 
+## Fastest Public Deploy
+
+Use Render to deploy the whole Flask app as a single service:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/parityresearch/cap-table/tree/cap-table)
+
+This repo includes:
+- `render.yaml` for the Render service definition
+- `.python-version` to pin Python 3.11
+- `requirements_web.txt` for the production web dependency set
+
+After deploy, use the generated `https://<service>.onrender.com` URL as the live site. That URL serves both the upload page and the `/api/generate` backend.
+
 ## Features
 
 ✨ **Upload & Generate**

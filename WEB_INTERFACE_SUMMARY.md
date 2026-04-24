@@ -4,6 +4,14 @@
 
 I've built a **modern web interface** for the TSE cap table recovery analysis tool. Users can now upload a CSV, configure parameters, and get a beautiful interactive report — all without touching the command line.
 
+## Fastest Public Deploy
+
+Deploy the full Flask app on Render:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/parityresearch/cap-table/tree/cap-table)
+
+Use the resulting `onrender.com` URL as the live site. GitHub Pages only serves the static frontend and cannot run the Flask upload API.
+
 ## What's Included
 
 ### 📁 New Files

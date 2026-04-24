@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: cap-table-web
+    runtime: python
+    plan: free
+    autoDeployTrigger: commit
+    buildCommand: pip install -r requirements_web.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    healthCheckPath: /healthz

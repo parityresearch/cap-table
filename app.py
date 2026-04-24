@@ -223,6 +223,11 @@ def index():
     """Landing page with upload form"""
     return render_template('upload.html')
 
+@app.route('/healthz')
+def healthz():
+    """Lightweight health check for hosting platforms."""
+    return jsonify({'ok': True}), 200
+
 @app.route('/api/generate', methods=['POST', 'OPTIONS'])
 def generate_report():
     """
