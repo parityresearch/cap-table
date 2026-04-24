@@ -28,21 +28,12 @@ app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file
 app.config['UPLOAD_FOLDER'] = tempfile.gettempdir()
 
-ALLOWED_DEV_ORIGINS = {
-    "http://localhost:5000",
-    "http://127.0.0.1:5000",
-    "http://localhost:5001",
-    "http://127.0.0.1:5001",
-}
-
-
 @app.after_request
 def add_dev_cors_headers(response):
-    """Allow local static previews to call the Flask API during development."""
-    origin = request.headers.get("Origin")
-    if origin in ALLOWED_DEV_ORIGINS:
-        response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Vary"] = "Origin"
+    """Allow the hosted frontend to call the public API without credentials."""
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     return response
 
 def normalize_text(value):
@@ -232,13 +223,16 @@ def index():
     """Landing page with upload form"""
     return render_template('upload.html')
 
-@app.route('/api/generate', methods=['POST'])
+@app.route('/api/generate', methods=['POST', 'OPTIONS'])
 def generate_report():
     """
     Accept CSV file and parameters, generate cap table report
     """
     temp_dir = None
     try:
+        if request.method == 'OPTIONS':
+            return ('', 204)
+
         # Get file
         if 'csv_file' not in request.files:
             return jsonify({'error': 'No file provided'}), 400

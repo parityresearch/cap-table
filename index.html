@@ -867,11 +867,40 @@
   </footer>
 
   <script>
-    // Prefer same-origin API when the page is served by Flask.
-    // Fall back to the local Flask port when the page is opened as a static file.
-    const API_URL = ['http:', 'https:'].includes(window.location.protocol)
-      ? window.location.origin
-      : 'http://localhost:5001';
+    function resolveApiEndpoint() {
+      const params = new URLSearchParams(window.location.search);
+      const metaApiUrl = document.querySelector('meta[name="tse-api-url"]')?.content?.trim();
+      const queryApiUrl = params.get('api_url')?.trim();
+      const globalApiUrl = typeof window.TSE_API_URL === 'string' ? window.TSE_API_URL.trim() : '';
+      const storedApiUrl = localStorage.getItem('tse_api_url')?.trim() || '';
+      const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+      const isGithubPages = window.location.hostname.endsWith('github.io');
+
+      const baseUrl =
+        queryApiUrl ||
+        globalApiUrl ||
+        metaApiUrl ||
+        storedApiUrl ||
+        (
+          isLocalHost || !['http:', 'https:'].includes(window.location.protocol)
+            ? 'http://localhost:5001'
+            : (isGithubPages ? '' : window.location.origin)
+        );
+
+      if (!baseUrl || baseUrl === 'null') {
+        throw new Error(
+          'GitHub Pages only hosts the static frontend. Add a deployed Flask API with ?api_url=https://your-api-host'
+        );
+      }
+
+      try {
+        return new URL('/api/generate', baseUrl).toString();
+      } catch (error) {
+        throw new Error(
+          `Invalid API URL "${baseUrl}". Open the page with ?api_url=https://your-api-host`
+        );
+      }
+    }
 
     const uploadBox = document.getElementById('uploadBox');
     const fileInput = document.getElementById('fileInput');
@@ -950,12 +979,24 @@
         formData.append('resolution_months', document.getElementById('resolution_months').value);
         formData.append('ch11_costs', document.getElementById('ch11_costs').value);
 
-        const response = await fetch(`${API_URL}/api/generate`, {
+        const apiEndpoint = resolveApiEndpoint();
+        const response = await fetch(apiEndpoint, {
           method: 'POST',
           body: formData,
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+        let data = null;
+        try {
+          data = responseText ? JSON.parse(responseText) : {};
+        } catch (parseError) {
+          if (!response.ok) {
+            throw new Error(
+              `Server returned ${response.status}. If this page is hosted separately from the API, set ?api_url=https://your-api-host`
+            );
+          }
+          throw new Error('Server returned an invalid response.');
+        }
 
         if (!response.ok) {
           throw new Error(data.error || 'Generation failed');
@@ -969,7 +1010,10 @@
         resultsSection.scrollIntoView({ behavior: 'smooth' });
 
       } catch (error) {
-        showStatus(`Error: ${error.message}`, 'error');
+        const message = error && error.message
+          ? error.message
+          : 'Generation failed';
+        showStatus(`Error: ${message}`, 'error');
       } finally {
         generateBtn.disabled = false;
       }
