@@ -64,12 +64,12 @@ A modern web application for Monte Carlo cap table analysis with PIK accretion, 
 
 4. **Start the server**
    ```bash
-   python app.py
+   ./start_web.sh
    ```
 
 5. **Open in browser**
    ```
-   http://localhost:5000
+   http://localhost:5001
    ```
 
 ## Usage

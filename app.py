@@ -28,6 +28,23 @@ app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file
 app.config['UPLOAD_FOLDER'] = tempfile.gettempdir()
 
+ALLOWED_DEV_ORIGINS = {
+    "http://localhost:5000",
+    "http://127.0.0.1:5000",
+    "http://localhost:5001",
+    "http://127.0.0.1:5001",
+}
+
+
+@app.after_request
+def add_dev_cors_headers(response):
+    """Allow local static previews to call the Flask API during development."""
+    origin = request.headers.get("Origin")
+    if origin in ALLOWED_DEV_ORIGINS:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Vary"] = "Origin"
+    return response
+
 def normalize_text(value):
     """Normalize text values"""
     if value is None:
@@ -46,11 +63,11 @@ def to_float(value):
         return 0.0
 
 LAYER_ORDER = {
-    "Super": 0,
-    "1L": 1,
-    "2L": 2,
-    "Junior": 3,
-    "Equity": 4,
+    "Super": 1,
+    "1L": 2,
+    "2L": 3,
+    "Junior": 4,
+    "Equity": 5,
 }
 
 TLB_NAME_FRAGMENT = "term loan b"
@@ -61,15 +78,16 @@ TLB_PIK_RATE = SOFR + TLB_SPREAD
 def canonicalize_layer(priority_label):
     """Canonicalize priority label to standard layer name"""
     normalized = priority_label.lower()
-    if "super" in normalized:
+    compact = normalized.replace(".", "").replace("-", " ").strip()
+    if "super" in compact:
         return "Super", LAYER_ORDER["Super"]
-    if "1st" in normalized or "senior secured" in normalized:
+    if compact.startswith("1l") or " 1l" in compact or "1st" in compact or "first lien" in compact or "senior secured" in compact:
         return "1L", LAYER_ORDER["1L"]
-    if "2nd" in normalized or "2nd lien" in normalized:
+    if compact.startswith("2l") or " 2l" in compact or "2nd" in compact or "second lien" in compact or "2nd lien" in compact:
         return "2L", LAYER_ORDER["2L"]
-    if "junior" in normalized:
+    if "junior" in compact:
         return "Junior", LAYER_ORDER["Junior"]
-    if "equity" in normalized:
+    if "equity" in compact:
         return "Equity", LAYER_ORDER["Equity"]
     raise ValueError(f"Unsupported priority label: {priority_label!r}")
 
@@ -80,6 +98,20 @@ def maybe_layer(priority_label):
     except ValueError:
         return None
 
+def first_numeric_value(*values):
+    """Return the first non-empty numeric value from a list of candidates."""
+    for value in values:
+        text = normalize_text(value)
+        if text == "":
+            continue
+        if text == "#DIV/0!":
+            return 0.0
+        try:
+            return float(text)
+        except ValueError:
+            continue
+    return 0.0
+
 def load_cap_table_from_csv(csv_path: Path) -> CapTableModel:
     """Load cap table from CSV file instead of Excel workbook"""
     instruments: list[Instrument] = []
@@ -89,7 +121,6 @@ def load_cap_table_from_csv(csv_path: Path) -> CapTableModel:
     multiple_high = 0.0
     total_debt_to_clear = 0.0
     other_claims = 0.0
-    listed_debt = 0.0
     in_stack_section = True
 
     with open(csv_path, 'r', encoding='utf-8-sig') as f:
@@ -107,7 +138,8 @@ def load_cap_table_from_csv(csv_path: Path) -> CapTableModel:
             interest_type = normalize_text(row[4])
 
             parsed_layer = maybe_layer(priority)
-            if instrument_name == "Total Debt to Clear" or priority == "Adjusted EBITDA":
+            row_labels = {priority.lower(), instrument_name.lower()}
+            if "total debt to clear" in row_labels or "adjusted ebitda" in row_labels:
                 in_stack_section = False
 
             if (
@@ -135,24 +167,36 @@ def load_cap_table_from_csv(csv_path: Path) -> CapTableModel:
                         pik_rate=pik_rate,
                     )
                 )
-                if layer == "1L":
-                    listed_debt += principal
 
             # Parse metadata rows (EBITDA, multiples, other claims)
             if not in_stack_section:
-                if "EBITDA" in instrument_name:
-                    base_ebitda = principal
-                if "multiple" in instrument_name.lower():
-                    if "low" in instrument_name.lower():
-                        multiple_low = principal
-                    elif "high" in instrument_name.lower():
-                        multiple_high = principal
-                    else:
-                        multiple_mid = principal
-                if "other" in instrument_name.lower() and "claims" in instrument_name.lower():
-                    other_claims = principal
-                if "total" in instrument_name.lower() and "debt" in instrument_name.lower():
-                    total_debt_to_clear = principal
+                metadata_value = first_numeric_value(row[2], row[1], row[0])
+                if "adjusted ebitda" in row_labels:
+                    base_ebitda = metadata_value
+                elif (
+                    "valuation multiple low" in row_labels
+                    or "low (distressed case)" in row_labels
+                    or any("low" in label and "multiple" in label for label in row_labels)
+                ):
+                    multiple_low = metadata_value
+                elif (
+                    "valuation multiple high" in row_labels
+                    or "high (healthy case)" in row_labels
+                    or any("high" in label and "multiple" in label for label in row_labels)
+                ):
+                    multiple_high = metadata_value
+                elif (
+                    "valuation multiple mid" in row_labels
+                    or "mid" in row_labels
+                    or any("mid" in label and "multiple" in label for label in row_labels)
+                ):
+                    multiple_mid = metadata_value
+                elif "other claims" in row_labels:
+                    other_claims = metadata_value
+                elif "total debt to clear" in row_labels:
+                    total_debt_to_clear = metadata_value
+
+    listed_debt = sum(item.principal for item in instruments)
 
     return CapTableModel(
         workbook_name=csv_path.name,
@@ -165,6 +209,23 @@ def load_cap_table_from_csv(csv_path: Path) -> CapTableModel:
         other_claims=other_claims,
         total_debt_to_clear=total_debt_to_clear or (listed_debt + other_claims),
     )
+
+
+def validate_uploaded_csv(filename: str, model: CapTableModel) -> None:
+    """Return clear user-facing validation errors for malformed uploads."""
+    if not filename.lower().endswith(".csv"):
+        raise ValueError("Please upload a CSV file.")
+    if not model.instruments:
+        raise ValueError(
+            "No debt instruments were found in the CSV. "
+            "Expected columns like: Layer, Instrument, Principal, Maturity, Interest Type."
+        )
+    if model.base_ebitda <= 0:
+        raise ValueError("Missing or invalid 'Adjusted EBITDA' metadata row.")
+    if model.multiple_low <= 0 or model.multiple_mid <= 0 or model.multiple_high <= 0:
+        raise ValueError(
+            "Missing valuation multiple metadata. Add Low, Mid, and High multiple rows."
+        )
 
 @app.route('/')
 def index():
@@ -208,6 +269,7 @@ def generate_report():
 
         # Load cap table from CSV
         model = load_cap_table_from_csv(temp_csv_path)
+        validate_uploaded_csv(file.filename, model)
 
         # Create simulation assumptions
         assumptions = SimulationAssumptions(
@@ -251,4 +313,3 @@ def generate_report():
 if __name__ == '__main__':
     # Development server (port 5000 conflicts with macOS AirPlay, use 5001 instead)
     app.run(debug=True, port=5001)
-

@@ -141,7 +141,7 @@ python3 app.py
 
 ### Usage (1 minute)
 
-1. Open http://localhost:5000
+1. Open http://localhost:5001
 2. Drag-drop your cap table CSV
 3. Configure assumptions (or use defaults)
 4. Click "Generate Report"
@@ -334,6 +334,6 @@ You now have a **production-ready web interface** for cap table analysis that:
 - ✅ Outputs downloadable HTML
 - ✅ Requires zero command-line knowledge
 
-**To start:** `python3 app.py` then open http://localhost:5000
+**To start:** `./start_web.sh` then open http://localhost:5001
 
 **For help:** See `QUICKSTART.md` or `WEB_INTERFACE_README.md`

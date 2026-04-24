@@ -10,10 +10,10 @@ cd /Users/gurmandhaliwal/cpi
 pip install -r requirements_web.txt
 
 # Start server
-python3 app.py
+./start_web.sh
 
 # Open browser
-open http://localhost:5000
+open http://localhost:5001
 ```
 
 ## What You'll See
@@ -135,8 +135,8 @@ Total Debt to Clear,575.0
 **"Flask not found"**
 → Run: `pip install Flask==3.0.0`
 
-**Port 5000 already in use**
-→ Change port in `app.py`: `app.run(port=5001)`
+**Port 5001 already in use**
+→ Edit `app.py` and choose a free port, then open that same port in your browser.
 
 ## Advanced
 
@@ -166,7 +166,7 @@ Hook the `/api/generate` endpoint into your own tools:
 ```python
 import requests
 
-response = requests.post('http://localhost:5000/api/generate', 
+response = requests.post('http://localhost:5001/api/generate', 
   files={'csv_file': open('my_cap_table.csv', 'rb')},
   data={'runs': 5000, 'market_price_1l': 15.0}
 )

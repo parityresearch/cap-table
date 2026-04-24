@@ -21,7 +21,7 @@ if ! python3 -c "import flask" 2>/dev/null; then
 fi
 
 echo ""
-echo "🌐 Starting Flask server on http://localhost:5000"
+echo "🌐 Starting Flask server on http://localhost:5001"
 echo "Press Ctrl+C to stop"
 echo ""
 

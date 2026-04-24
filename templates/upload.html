@@ -670,32 +670,42 @@
             <tbody>
               <tr>
                 <td><code>Super</code></td>
-                <td>Senior Notes</td>
-                <td>50.0</td>
-                <td>2027</td>
-                <td>Fixed 5%</td>
+                <td>A/R Facility</td>
+                <td>118.0</td>
+                <td>n/a</td>
+                <td>n/a</td>
+              </tr>
+              <tr>
+                <td><code>1L</code></td>
+                <td>Refi Term Loans</td>
+                <td>1238.0</td>
+                <td>n/a</td>
+                <td>n/a</td>
               </tr>
               <tr>
                 <td><code>1L</code></td>
                 <td>Term Loan B</td>
-                <td>300.0</td>
-                <td>2027</td>
-                <td>PIK SOFR+8.5%</td>
+                <td>715.0</td>
+                <td>2028</td>
+                <td>SOFR + 8.5% (PIK Option)</td>
               </tr>
               <tr>
                 <td><code>2L</code></td>
-                <td>Second Lien</td>
-                <td>150.0</td>
-                <td>2028</td>
-                <td>12.5% Cash</td>
+                <td>Senior Secured Notes (2029)</td>
+                <td>442.0</td>
+                <td>2029</td>
+                <td>7.625% Cash</td>
               </tr>
             </tbody>
           </table>
           <div class="csv-example">
-            <strong>Then metadata rows:</strong><br>
-            <code>Adjusted EBITDA,72.5</code><br>
+            <strong>Then metadata rows in <code>Label,Value</code> format:</strong><br>
+            <code>Adjusted EBITDA,162.5</code><br>
+            <code>Valuation Multiple Low,5.0</code><br>
             <code>Valuation Multiple Mid,6.0</code><br>
-            <code>Other Claims,0.0</code>
+            <code>Valuation Multiple High,7.0</code><br>
+            <code>Other Claims,3.9</code><br>
+            <code>Total Debt to Clear,2591.9</code>
           </div>
         </div>
       </div>
@@ -713,7 +723,7 @@
               Runs
               <small>More = higher precision</small>
             </label>
-            <input type="number" id="runs" value="50000" min="100" step="1000" />
+            <input type="number" id="runs" value="5000" min="100" step="1000" />
           </div>
           <div class="param-field">
             <label class="param-label">
@@ -857,10 +867,11 @@
   </footer>
 
   <script>
-    // Configure API endpoint
-    const API_URL = window.location.hostname === 'localhost' 
-      ? 'http://localhost:5001'
-      : 'https://tse-recovery-api.herokuapp.com'; // Change to your deployed API URL
+    // Prefer same-origin API when the page is served by Flask.
+    // Fall back to the local Flask port when the page is opened as a static file.
+    const API_URL = ['http:', 'https:'].includes(window.location.protocol)
+      ? window.location.origin
+      : 'http://localhost:5001';
 
     const uploadBox = document.getElementById('uploadBox');
     const fileInput = document.getElementById('fileInput');
@@ -898,12 +909,17 @@
     });
 
     function handleFileSelect(file) {
-      if (!file.name.endsWith('.csv')) {
+      const normalizedName = file.name.trim().toLowerCase();
+      if (!normalizedName.endsWith('.csv')) {
         showStatus('Please select a .csv file', 'error');
+        fileName.textContent = '';
+        selectedFile = null;
+        generateBtn.disabled = true;
         return;
       }
       selectedFile = file;
       fileName.textContent = `✓ ${file.name}`;
+      showStatus('', '');
       generateBtn.disabled = false;
     }
 

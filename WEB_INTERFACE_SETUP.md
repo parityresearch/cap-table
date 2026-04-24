@@ -13,10 +13,10 @@ cd /Users/gurmandhaliwal/cpi
 pip install Flask==3.0.0
 
 # 2. Start server
-python3 app.py
+./start_web.sh
 
 # 3. Open browser
-open http://localhost:5000
+open http://localhost:5001
 
 # Done! Now upload your CSV and click Generate
 ```
@@ -99,8 +99,8 @@ Total Debt to Clear,575.0
 
 1. **Test it out**
    ```bash
-   python3 app.py
-   open http://localhost:5000
+   ./start_web.sh
+   open http://localhost:5001
    ```
 
 2. **Upload sample CSV**
@@ -261,10 +261,10 @@ See **WEB_INTERFACE_README.md** for more help.
 ## 🚀 Ready?
 
 ```bash
-python3 app.py
+./start_web.sh
 ```
 
-Then open **http://localhost:5000** in your browser.
+Then open **http://localhost:5001** in your browser.
 
 Upload a CSV and click **Generate Report** to start analyzing.
 
