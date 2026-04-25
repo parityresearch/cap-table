@@ -867,6 +867,273 @@
   </footer>
 
   <script>
+    const IS_GITHUB_PAGES = window.location.hostname.endsWith('github.io');
+    const PYODIDE_INDEX_URL = 'https://cdn.jsdelivr.net/pyodide/v0.29.3/full/';
+    const BROWSER_RUNTIME_BOOTSTRAP = String.raw`
+import csv
+import json
+from pathlib import Path
+
+from simulate_tse_cap_table import (
+    CapTableModel,
+    Instrument,
+    SimulationAssumptions,
+    render_report,
+    simulate,
+)
+
+LAYER_ORDER = {
+    "Super": 1,
+    "1L": 2,
+    "2L": 3,
+    "Junior": 4,
+    "Equity": 5,
+}
+
+TLB_NAME_FRAGMENT = "term loan b"
+SOFR = 0.053
+TLB_SPREAD = 0.085
+TLB_PIK_RATE = SOFR + TLB_SPREAD
+
+def normalize_text(value):
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return " ".join(value.split()).strip()
+    return str(value).strip()
+
+def to_float(value):
+    if value in (None, "", "#DIV/0!"):
+        return 0.0
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
+
+def canonicalize_layer(priority_label):
+    normalized = priority_label.lower()
+    compact = normalized.replace(".", "").replace("-", " ").strip()
+    if "super" in compact:
+        return "Super", LAYER_ORDER["Super"]
+    if compact.startswith("1l") or " 1l" in compact or "1st" in compact or "first lien" in compact or "senior secured" in compact:
+        return "1L", LAYER_ORDER["1L"]
+    if compact.startswith("2l") or " 2l" in compact or "2nd" in compact or "second lien" in compact or "2nd lien" in compact:
+        return "2L", LAYER_ORDER["2L"]
+    if "junior" in compact:
+        return "Junior", LAYER_ORDER["Junior"]
+    if "equity" in compact:
+        return "Equity", LAYER_ORDER["Equity"]
+    raise ValueError(f"Unsupported priority label: {priority_label!r}")
+
+def maybe_layer(priority_label):
+    try:
+        return canonicalize_layer(priority_label)
+    except ValueError:
+        return None
+
+def first_numeric_value(*values):
+    for value in values:
+        text = normalize_text(value)
+        if text == "":
+            continue
+        if text == "#DIV/0!":
+            return 0.0
+        try:
+            return float(text)
+        except ValueError:
+            continue
+    return 0.0
+
+def load_cap_table_from_csv(csv_path: Path) -> CapTableModel:
+    instruments = []
+    base_ebitda = 0.0
+    multiple_low = 0.0
+    multiple_mid = 0.0
+    multiple_high = 0.0
+    total_debt_to_clear = 0.0
+    other_claims = 0.0
+    in_stack_section = True
+
+    with open(csv_path, "r", encoding="utf-8-sig") as handle:
+        reader = csv.reader(handle)
+        for row in reader:
+            while len(row) < 5:
+                row.append("")
+
+            priority = normalize_text(row[0])
+            raw_instrument_name = row[1]
+            instrument_name = normalize_text(raw_instrument_name)
+            principal = to_float(row[2])
+            maturity = normalize_text(row[3])
+            interest_type = normalize_text(row[4])
+
+            parsed_layer = maybe_layer(priority)
+            row_labels = {priority.lower(), instrument_name.lower()}
+            if "total debt to clear" in row_labels or "adjusted ebitda" in row_labels:
+                in_stack_section = False
+
+            if (
+                in_stack_section
+                and instrument_name
+                and isinstance(raw_instrument_name, str)
+                and "total" not in instrument_name.lower()
+                and parsed_layer
+            ):
+                layer, rank = parsed_layer
+                is_pik = "pik" in interest_type.lower() or "pik" in instrument_name.lower()
+                pik_rate = TLB_PIK_RATE if (
+                    is_pik or TLB_NAME_FRAGMENT in instrument_name.lower()
+                ) else 0.0
+                instruments.append(
+                    Instrument(
+                        layer=layer,
+                        rank=rank,
+                        priority_label=priority,
+                        name=instrument_name,
+                        principal=principal,
+                        maturity=maturity or "n/a",
+                        interest_type=interest_type or "n/a",
+                        is_pik=is_pik,
+                        pik_rate=pik_rate,
+                    )
+                )
+
+            if not in_stack_section:
+                metadata_value = first_numeric_value(row[2], row[1], row[0])
+                if "adjusted ebitda" in row_labels:
+                    base_ebitda = metadata_value
+                elif (
+                    "valuation multiple low" in row_labels
+                    or "low (distressed case)" in row_labels
+                    or any("low" in label and "multiple" in label for label in row_labels)
+                ):
+                    multiple_low = metadata_value
+                elif (
+                    "valuation multiple high" in row_labels
+                    or "high (healthy case)" in row_labels
+                    or any("high" in label and "multiple" in label for label in row_labels)
+                ):
+                    multiple_high = metadata_value
+                elif (
+                    "valuation multiple mid" in row_labels
+                    or "mid" in row_labels
+                    or any("mid" in label and "multiple" in label for label in row_labels)
+                ):
+                    multiple_mid = metadata_value
+                elif "other claims" in row_labels:
+                    other_claims = metadata_value
+                elif "total debt to clear" in row_labels:
+                    total_debt_to_clear = metadata_value
+
+    listed_debt = sum(item.principal for item in instruments)
+
+    return CapTableModel(
+        workbook_name=csv_path.name,
+        instruments=sorted(instruments, key=lambda item: (item.rank, item.name)),
+        base_ebitda=base_ebitda,
+        multiple_low=multiple_low,
+        multiple_mid=multiple_mid,
+        multiple_high=multiple_high,
+        listed_debt=listed_debt,
+        other_claims=other_claims,
+        total_debt_to_clear=total_debt_to_clear or (listed_debt + other_claims),
+    )
+
+def validate_uploaded_csv(filename, model):
+    if not filename.lower().endswith(".csv"):
+        raise ValueError("Please upload a CSV file.")
+    if not model.instruments:
+        raise ValueError(
+            "No debt instruments were found in the CSV. Expected columns like: Layer, Instrument, Principal, Maturity, Interest Type."
+        )
+    if model.base_ebitda <= 0:
+        raise ValueError("Missing or invalid 'Adjusted EBITDA' metadata row.")
+    if model.multiple_low <= 0 or model.multiple_mid <= 0 or model.multiple_high <= 0:
+        raise ValueError("Missing valuation multiple metadata. Add Low, Mid, and High multiple rows.")
+
+def generate_report_from_csv(csv_filename, assumptions_json):
+    assumptions_dict = json.loads(assumptions_json)
+    model = load_cap_table_from_csv(Path(csv_filename))
+    validate_uploaded_csv(csv_filename, model)
+    assumptions = SimulationAssumptions(**assumptions_dict)
+    report = simulate(model, assumptions)
+    return render_report(report)
+`;
+
+    let browserRuntimePromise = null;
+
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const existing = document.querySelector(`script[src="${src}"]`);
+        if (existing) {
+          existing.addEventListener('load', resolve, { once: true });
+          existing.addEventListener('error', reject, { once: true });
+          if (existing.dataset.loaded === 'true') {
+            resolve();
+          }
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.addEventListener('load', () => {
+          script.dataset.loaded = 'true';
+          resolve();
+        }, { once: true });
+        script.addEventListener('error', reject, { once: true });
+        document.head.appendChild(script);
+      });
+    }
+
+    async function ensureBrowserRuntime() {
+      if (browserRuntimePromise) {
+        return browserRuntimePromise;
+      }
+
+      browserRuntimePromise = (async () => {
+        showStatus('Loading browser runtime (first run may take 15-30 seconds)...', 'loading');
+
+        if (typeof window.loadPyodide !== 'function') {
+          await loadScript(`${PYODIDE_INDEX_URL}pyodide.js`);
+        }
+
+        const pyodide = await window.loadPyodide({ indexURL: PYODIDE_INDEX_URL });
+        await pyodide.loadPackage(['numpy', 'micropip']);
+        await pyodide.runPythonAsync(`
+import micropip
+await micropip.install("openpyxl")
+        `);
+
+        const simulationSource = await fetch('simulate_tse_cap_table.py');
+        if (!simulationSource.ok) {
+          throw new Error('Could not load simulation engine from GitHub Pages.');
+        }
+
+        pyodide.FS.writeFile('simulate_tse_cap_table.py', await simulationSource.text());
+        await pyodide.runPythonAsync(BROWSER_RUNTIME_BOOTSTRAP);
+        return pyodide;
+      })();
+
+      return browserRuntimePromise;
+    }
+
+    function buildAssumptions() {
+      return {
+        runs: Number(document.getElementById('runs').value),
+        seed: Number(document.getElementById('seed').value),
+        ebitda_cv: Number(document.getElementById('ebitda_cv').value),
+        debt_volatility: 0.03,
+        ebitda_distressed: Number(document.getElementById('ebitda_distressed').value),
+        ebitda_clean: Number(document.getElementById('ebitda_clean').value),
+        ebitda_recovery: Number(document.getElementById('ebitda_recovery').value),
+        market_price_1l: Number(document.getElementById('market_price_1l').value),
+        discount_rate: Number(document.getElementById('discount_rate').value),
+        resolution_months: Number(document.getElementById('resolution_months').value),
+        ch11_costs: Number(document.getElementById('ch11_costs').value),
+      };
+    }
+
     function resolveApiEndpoint() {
       const params = new URLSearchParams(window.location.search);
       const metaApiUrl = document.querySelector('meta[name="tse-api-url"]')?.content?.trim();
@@ -874,7 +1141,6 @@
       const globalApiUrl = typeof window.TSE_API_URL === 'string' ? window.TSE_API_URL.trim() : '';
       const storedApiUrl = localStorage.getItem('tse_api_url')?.trim() || '';
       const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-      const isGithubPages = window.location.hostname.endsWith('github.io');
 
       const baseUrl =
         queryApiUrl ||
@@ -884,12 +1150,12 @@
         (
           isLocalHost || !['http:', 'https:'].includes(window.location.protocol)
             ? 'http://localhost:5001'
-            : (isGithubPages ? '' : window.location.origin)
+            : window.location.origin
         );
 
       if (!baseUrl || baseUrl === 'null') {
         throw new Error(
-          'GitHub Pages only hosts the static frontend. Add a deployed Flask API with ?api_url=https://your-api-host'
+          'API URL is not configured.'
         );
       }
 
@@ -965,46 +1231,67 @@
       resultsSection.classList.remove('visible');
 
       try {
-        const formData = new FormData();
-        formData.append('csv_file', selectedFile);
-        formData.append('runs', document.getElementById('runs').value);
-        formData.append('seed', document.getElementById('seed').value);
-        formData.append('ebitda_cv', document.getElementById('ebitda_cv').value);
-        formData.append('debt_volatility', '0.03');
-        formData.append('ebitda_distressed', document.getElementById('ebitda_distressed').value);
-        formData.append('ebitda_clean', document.getElementById('ebitda_clean').value);
-        formData.append('ebitda_recovery', document.getElementById('ebitda_recovery').value);
-        formData.append('market_price_1l', document.getElementById('market_price_1l').value);
-        formData.append('discount_rate', document.getElementById('discount_rate').value);
-        formData.append('resolution_months', document.getElementById('resolution_months').value);
-        formData.append('ch11_costs', document.getElementById('ch11_costs').value);
+        if (IS_GITHUB_PAGES) {
+          const pyodide = await ensureBrowserRuntime();
+          showStatus('Running analysis in your browser...', 'loading');
 
-        const apiEndpoint = resolveApiEndpoint();
-        const response = await fetch(apiEndpoint, {
-          method: 'POST',
-          body: formData,
-        });
+          const csvBytes = new Uint8Array(await selectedFile.arrayBuffer());
+          const csvFilename = `upload_${Date.now()}.csv`;
+          pyodide.FS.writeFile(csvFilename, csvBytes);
+          pyodide.globals.set('browser_csv_filename', csvFilename);
+          pyodide.globals.set('browser_assumptions_json', JSON.stringify(buildAssumptions()));
 
-        const responseText = await response.text();
-        let data = null;
-        try {
-          data = responseText ? JSON.parse(responseText) : {};
-        } catch (parseError) {
-          if (!response.ok) {
-            throw new Error(
-              `Server returned ${response.status}. If this page is hosted separately from the API, set ?api_url=https://your-api-host`
+          let browserResult;
+          try {
+            browserResult = await pyodide.runPythonAsync(
+              'generate_report_from_csv(browser_csv_filename, browser_assumptions_json)'
             );
+            generatedHtml = browserResult.toString();
+          } finally {
+            browserResult?.destroy?.();
+            pyodide.globals.delete('browser_csv_filename');
+            pyodide.globals.delete('browser_assumptions_json');
+            try {
+              pyodide.FS.unlink(csvFilename);
+            } catch (unlinkError) {
+              // Ignore cleanup failures from the in-browser filesystem.
+            }
           }
-          throw new Error('Server returned an invalid response.');
-        }
+        } else {
+          const formData = new FormData();
+          formData.append('csv_file', selectedFile);
+          const assumptions = buildAssumptions();
+          Object.entries(assumptions).forEach(([key, value]) => {
+            formData.append(key, String(value));
+          });
 
-        if (!response.ok) {
-          throw new Error(data.error || 'Generation failed');
-        }
+          const apiEndpoint = resolveApiEndpoint();
+          const response = await fetch(apiEndpoint, {
+            method: 'POST',
+            body: formData,
+          });
 
-        generatedHtml = data.html;
+          const responseText = await response.text();
+          let data = null;
+          try {
+            data = responseText ? JSON.parse(responseText) : {};
+          } catch (parseError) {
+            if (!response.ok) {
+              throw new Error(
+                `Server returned ${response.status}. If this page is hosted separately from the API, set ?api_url=https://your-api-host`
+              );
+            }
+            throw new Error('Server returned an invalid response.');
+          }
+
+          if (!response.ok) {
+            throw new Error(data.error || 'Generation failed');
+          }
+
+          generatedHtml = data.html;
+        }
         showStatus('✓ Analysis complete', 'success');
-        
+
         reportFrame.srcdoc = generatedHtml;
         resultsSection.classList.add('visible');
         resultsSection.scrollIntoView({ behavior: 'smooth' });
