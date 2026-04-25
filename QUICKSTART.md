@@ -18,7 +18,17 @@ open http://localhost:5001
 
 ## Fastest Public Deploy
 
-Deploy the full Flask app on Render:
+Easiest public app: deploy `streamlit_app.py` on Streamlit Community Cloud.
+
+Official docs:
+- https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy
+
+Use:
+- Repository: `parityresearch/cap-table`
+- Branch: `cap-table`
+- Entrypoint file: `streamlit_app.py`
+
+If you want to keep the Flask version instead, deploy the full Flask app on Render:
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/parityresearch/cap-table/tree/cap-table)
 

@@ -103,7 +103,23 @@ Generated artifacts:
 
 ## TSE Web App Deployment
 
-The full web app is a Flask service. GitHub Pages can only host the static frontend, so the fastest working public deployment is to run the whole app on Render.
+The easiest public app path is Streamlit Community Cloud. Streamlit’s official docs say you can deploy from GitHub by selecting your repository, branch, and entrypoint file, and that Community Cloud gives each app a shareable `streamlit.app` URL.
+
+Official docs:
+- https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy
+- https://docs.streamlit.io/deploy/streamlit-community-cloud
+
+This repo now includes a Streamlit entrypoint:
+
+- `streamlit_app.py`
+
+Use Streamlit Community Cloud with:
+
+- Repository: `parityresearch/cap-table`
+- Branch: `cap-table`
+- Entrypoint: `streamlit_app.py`
+
+The full Flask app is still available too. GitHub Pages can only host the static frontend, so the fastest working public Flask deployment is to run the whole app on Render.
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/parityresearch/cap-table/tree/cap-table)
 

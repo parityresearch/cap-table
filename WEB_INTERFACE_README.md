@@ -4,7 +4,18 @@ A modern web application for Monte Carlo cap table analysis with PIK accretion, 
 
 ## Fastest Public Deploy
 
-Use Render to deploy the whole Flask app as a single service:
+The easiest public app route is Streamlit Community Cloud.
+
+Official docs:
+- https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy
+- https://docs.streamlit.io/deploy/streamlit-community-cloud
+
+Use:
+- Repository: `parityresearch/cap-table`
+- Branch: `cap-table`
+- Entrypoint: `streamlit_app.py`
+
+If you want to keep the current Flask UI instead, use Render to deploy the whole Flask app as a single service:
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/parityresearch/cap-table/tree/cap-table)
 
